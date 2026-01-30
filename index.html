@@ -241,13 +241,18 @@ function startMusic(){
   }, tempoMs);
 }
 function setTempo(ms){
+  ms = Math.max(90, Math.min(260, ms|0));
+  if(ms === tempoMs) return;          // <-- critical: don't restart constantly
   tempoMs = ms;
+
   if(musicTimer){
     clearInterval(musicTimer);
     musicTimer = null;
-    startMusic();
   }
+  // only restart music if audio is already unlocked
+  if(audioUnlocked) startMusic();
 }
+
 
 let audioUnlocked=false;
 function unlockAudioOnce(){
