@@ -56,7 +56,7 @@
   <div class="panel">
     <h1>Forks Ave — JoJos Run</h1>
     <p><b>Story:</b> The crew bus just dropped Tom off at the 76. He’s a logger on a mission: reach Thriftway’s hot case for chicken strips and JoJos before the tourists buy them all up.</p>
-    <p><b>Tourists:</b> Talk first. Some ask directions and tip if you answer right. Some ask painfully stupid Twilight questions… and those are the ones you can throw.</p>
+    <p><b>Tourists:</b> Talk first. Some ask directions and tip if you answer right (and then they leave). Some ask painfully stupid Twilight questions… and those are the ones you can throw.</p>
     <p><b>Enemies:</b> Vampires (winged) & werewolves. Jump on them like a classic platformer.</p>
     <p><b>Beer:</b> Big hit → small. Small hit → back to 76. (Invincibility frames prevent instant double-hit.)</p>
     <button class="btn" id="startBtn" type="button">START</button>
@@ -76,13 +76,6 @@
 </div>
 
 <script>
-/* =========================================================
-   REPLACE-ALL BUILD — HALF 1/2
-   Fixes in this version:
-   - Sassy smaller + lower jump
-   - Tom jumps higher than Sassy
-   - Death NEVER resets time; death ALWAYS sends to 76 (not Thriftway)
-========================================================= */
 document.addEventListener("contextmenu", e=>e.preventDefault());
 document.addEventListener("selectstart", e=>e.preventDefault());
 
@@ -192,9 +185,8 @@ const W=canvas.width, H=canvas.height;
 let WORLD_W=2600;
 const GROUND_Y=560, GRAVITY=2200;
 const BUILD_Y=GROUND_Y-210, BUILD_H=190;
-let timeLeft=160, cash=0, camX=0, inBossArena=false;
 
-/* camera apply once */
+let timeLeft=160, cash=0, camX=0, inBossArena=false;
 function sx(worldX){ return worldX - camX; }
 
 /* ---------- Stores ---------- */
@@ -211,30 +203,23 @@ const stores=[
 WORLD_W = stores.reduce((m,s)=>Math.max(m,s.x+s.w),0)+260;
 function doorRect(s){ return rect(s.x+s.door.dx, GROUND_Y-84, s.door.w, 84); }
 
-/* ---------- Player (true size changes) ---------- */
+/* ---------- Player ---------- */
 const TOM_BIG  = { w:44, h:96 };
 const TOM_SMALL= { w:38, h:72 };
-
-// Tom jump higher than Sassy:
 const TOM_JUMP_VY = -1040;
 
 const tom={
-  x:90, y:GROUND_Y-TOM_BIG.h,
-  w:TOM_BIG.w, h:TOM_BIG.h,
-  vx:0, vy:0,
-  onGround:false,
-  big:true,
-  beer:6,
-  ammo:0,
-  facing:1,
-  carry:null,
-  hurt:0,     // i-frames
-  fireCD:0
+  x:90,y:GROUND_Y-TOM_BIG.h,
+  w:TOM_BIG.w,h:TOM_BIG.h,
+  vx:0,vy:0,onGround:false,
+  big:true,beer:6,ammo:0,
+  facing:1,carry:null,
+  hurt:0, fireCD:0
 };
 
 function setTomSize(isBig){
   const footY = tom.y + tom.h;
-  tom.big = isBig;
+  tom.big=isBig;
   if(isBig){ tom.w=TOM_BIG.w; tom.h=TOM_BIG.h; }
   else{ tom.w=TOM_SMALL.w; tom.h=TOM_SMALL.h; }
   tom.y = footY - tom.h;
@@ -242,7 +227,19 @@ function setTomSize(isBig){
 
 /* ---------- NPC / enemies ---------- */
 function makeTourist(x){
-  return {x,y:GROUND_Y-82,w:38,h:82,vx:(Math.random()<0.5?-40:40),alive:true,known:false,annoying:null,smart:false,throwable:false,sliding:false,slideV:0};
+  return {
+    x,y:GROUND_Y-82,w:38,h:82,
+    vx:(Math.random()<0.5?-40:40),
+    alive:true,
+    known:false,
+    annoying:null,
+    smart:false,
+    throwable:false,
+    sliding:false,slideV:0,
+    // NEW: good tourists leave after interaction (tip once)
+    leaving:false,
+    tipped:false
+  };
 }
 let tourists=[makeTourist(420),makeTourist(680),makeTourist(980),makeTourist(1320),makeTourist(1600)];
 
@@ -253,19 +250,8 @@ let enemies=[makeEnemy("vampire",760),makeEnemy("werewolf",1050),makeEnemy("vamp
 
 const elk={active:false,x:0,y:GROUND_Y-54,w:90,h:48,vx:-560};
 
-// ✅ Sassy smaller + lower jump
-const SASSY_W = 86;
-const SASSY_H = 112;
-const SASSY_JUMP_VY = -760;   // lower than Tom
-const SASSY_SPEED = 260;
-
-const sassy={
-  active:false, started:false, hp:6,
-  x:2140, y:GROUND_Y-SASSY_H,
-  w:SASSY_W, h:SASSY_H,
-  vx:0, vy:0, onGround:false,
-  jumpT:1.1
-};
+const SASSY_W=86, SASSY_H=112, SASSY_JUMP_VY=-760, SASSY_SPEED=260;
+const sassy={active:false,started:false,hp:6,x:2140,y:GROUND_Y-SASSY_H,w:SASSY_W,h:SASSY_H,vx:0,vy:0,onGround:false,jumpT:1.1};
 
 const hazards=[{x:520,w:52,type:"pothole"},{x:1120,w:70,type:"puddle"},{x:1460,w:60,type:"cart"}];
 let hazardCooldown=0;
@@ -283,6 +269,7 @@ function spawnBullet(){
 }
 
 /* ---------- Dialog state ---------- */
+let runningMode="RUN";
 let mode="RUN", activeTourist=null, activeStore=null;
 let answerChoices=[], answerIndex=0, correctIndex=0;
 
@@ -306,16 +293,16 @@ function renderChoices(){
   return out.trimEnd();
 }
 
-/* ---------- Draw (includes smaller Sassy sprite) ---------- */
+/* ---------- Drawing ---------- */
 function drawStores(){
   for(const s of stores){
-    const x = sx(s.x);
+    const x=sx(s.x);
     px(x, BUILD_Y, s.w, BUILD_H, s.color);
     px(x, BUILD_Y, s.w, 10, "rgba(0,0,0,.25)");
     ctx.fillStyle="rgba(255,255,255,.92)";
     ctx.font="bold 14px system-ui";
     ctx.textAlign="center";
-    ctx.fillText(s.name, x + s.w/2, BUILD_Y + 26);
+    ctx.fillText(s.name, x+s.w/2, BUILD_Y+26);
     for(let i=0;i<Math.floor(s.w/70);i++) px(x+16+i*70, BUILD_Y+54, 42, 22, "rgba(255,255,255,.18)");
     const d=doorRect(s);
     px(sx(d.x), d.y, d.w, d.h, "#111827");
@@ -406,13 +393,11 @@ function drawElk(){
 function drawSassy(){
   if(!sassy.active) return;
   const x=sx(sassy.x), y=sassy.y;
-  // smaller body
   px(x+6,y+8, sassy.w-12, sassy.h-16, "#3b2f2f");
   px(x+18,y+24, sassy.w-36, 28, "#2b1f1f");
   px(x+26,y+34,8,8,"#111827");
   px(x+sassy.w-34,y+34,8,8,"#111827");
   px(x+24,y+56, sassy.w-48, 8, "#111827");
-  // arms
   px(x-8, y+34, 18, 42, "#3b2f2f");
   px(x+sassy.w-10, y+34, 18, 42, "#3b2f2f");
   ctx.fillStyle="rgba(255,255,255,.92)";
@@ -432,7 +417,7 @@ function drawBullets(){
 </script>
 <script>
 /* =========================================================
-   REPLACE-ALL BUILD — HALF 2/2
+   REPLACE-ALL BUILD — HALF 2/2  (UPDATED: SASSY STOMP WORKS)
 ========================================================= */
 
 function hazardRect(hz){ return rect(hz.x, GROUND_Y-18, hz.w, 18); }
@@ -445,15 +430,27 @@ function storeAtDoor(){
   return null;
 }
 
-// Larger stomp window + priority logic
+/* ✅ More forgiving stomp test (works on Sassy too) */
 function isStomp(tr, er){
-  // must be falling
-  if(tom.vy <= 80) return false;
-  // feet must be above "head band" of enemy, allowing forgiveness
+  // must be descending at least a little
+  if(tom.vy <= 20) return false;
+
   const feet = tr.y + tr.h;
-  const headBand = er.y + er.h*0.55; // bigger head zone
-  const prevFeet = feet - tom.vy * (1/60); // approximate previous frame
-  return (prevFeet <= headBand && feet >= er.y + 6);
+  const centerX = tr.x + tr.w*0.5;
+
+  // widened horizontal forgiveness
+  const inX = centerX >= (er.x - 10) && centerX <= (er.x + er.w + 10);
+
+  // head zone is larger to feel like Mario
+  const headBand = er.y + er.h * 0.62;
+
+  // approximate previous feet position (helps detect "came from above")
+  const prevFeet = feet - tom.vy * (1/60);
+
+  const cameFromAbove = prevFeet <= (headBand + 12);
+  const inVerticalBand = feet >= (er.y + 6) && feet <= (er.y + er.h * 0.80);
+
+  return inX && cameFromAbove && inVerticalBand;
 }
 
 function closeInteraction(){
@@ -571,15 +568,15 @@ function respawnAt76(){
   tom.vx=0; tom.vy=0;
   tom.onGround=false;
   tom.facing=1;
-  tom.hurt=0.9; // brief i-frames on spawn
+  tom.hurt=0.9;
 
-  // boss arena state resets ONLY position/zone, NOT time/cash
   inBossArena=false;
+
   sassy.active=false;
   sassy.started=false;
   sassy.hp=6;
+  sassy.hitCD=0;
 
-  // repopulate main street enemies/tourists so you can continue
   enemies=[
     makeEnemy("vampire",760),
     makeEnemy("werewolf",1050),
@@ -608,17 +605,17 @@ function hitTom(knockDir=0){
     tom.vy=-540;
     tom.vx=520*(knockDir || -tom.facing);
   }else{
-    respawnAt76(); // ✅ always 76, never Thriftway
+    respawnAt76();
   }
 }
 
-/* ---------- Bullets update ---------- */
+/* ---------- Bullets ---------- */
 function updateBullets(dt){
   for(const b of bullets){
     b.x += b.vx*dt;
     b.life -= dt;
     if(b.life<=0) b.dead=true;
-    // collide with enemies (main street only)
+
     if(!inBossArena){
       const br=rect(b.x,b.y,b.w,b.h);
       for(const e of enemies){
@@ -630,8 +627,6 @@ function updateBullets(dt){
           break;
         }
       }
-    }else{
-      // bullets do NOT hurt Sassy (boss must be jumped)
     }
   }
   for(let i=bullets.length-1;i>=0;i--) if(bullets[i].dead) bullets.splice(i,1);
@@ -682,13 +677,10 @@ function updateEnemies(dt){
       e.vy = 0;
     }
 
-    if(tom.hurt>0) continue;
-
     const tr=rect(tom.x,tom.y,tom.w,tom.h);
     const er=rect(e.x,e.y,e.w,e.h);
 
     if(aabb(tr,er)){
-      // ✅ STOMP PRIORITY
       if(isStomp(tr,er)){
         if(e.type==="vampire" && e.winged){
           e.winged=false;
@@ -696,9 +688,10 @@ function updateEnemies(dt){
           e.alive=false;
         }
         tom.vy=-720;
+        tom.hurt=Math.max(tom.hurt, 0.10); // prevents instant side-hit mid-bounce
         sfxStomp();
       }else{
-        hitTom(Math.sign(tom.x - e.x) || 1);
+        if(tom.hurt<=0) hitTom(Math.sign(tom.x - e.x) || 1);
       }
     }
   }
@@ -767,17 +760,16 @@ function updateElk(dt){
   elk.x += elk.vx*dt;
   if(elk.x < tom.x - 900) elk.active=false;
 
-  if(tom.hurt>0) return;
-
   const tr=rect(tom.x,tom.y,tom.w,tom.h);
   const er=rect(elk.x,elk.y,elk.w,elk.h);
   if(aabb(tr,er)){
     if(isStomp(tr,er)){
       elk.active=false;
       tom.vy=-760;
+      tom.hurt=Math.max(tom.hurt, 0.10);
       sfxStomp();
     }else{
-      hitTom(Math.sign(tom.x - elk.x) || 1);
+      if(tom.hurt<=0) hitTom(Math.sign(tom.x - elk.x) || 1);
       elk.active=false;
     }
   }
@@ -798,6 +790,7 @@ function startBoss(){
   sassy.active=true;
   sassy.started=true;
   sassy.hp=6;
+  sassy.hitCD=0;          // ✅ stomp cooldown
   sassy.x=2140;
   sassy.y=GROUND_Y-sassy.h;
   sassy.vx=-SASSY_SPEED;
@@ -809,12 +802,15 @@ function startBoss(){
 function updateBoss(dt){
   if(!sassy.active) return;
 
+  // cooldown between stomps so you can bounce and land again cleanly
+  sassy.hitCD = Math.max(0, (sassy.hitCD||0) - dt);
+
   const dir = Math.sign(tom.x - sassy.x) || 1;
   sassy.vx = dir * SASSY_SPEED;
 
   sassy.jumpT -= dt;
   if(sassy.jumpT<=0 && sassy.onGround){
-    sassy.vy = SASSY_JUMP_VY;  // ✅ lower jump
+    sassy.vy = SASSY_JUMP_VY;
     sassy.onGround=false;
     sassy.jumpT = 0.9 + Math.random()*0.7;
   }
@@ -831,26 +827,27 @@ function updateBoss(dt){
     sassy.onGround=true;
   }
 
-  if(tom.hurt>0) return;
-
   const tr=rect(tom.x,tom.y,tom.w,tom.h);
   const br=rect(sassy.x,sassy.y,sassy.w,sassy.h);
+
   if(aabb(tr,br)){
-    // stomp damages boss
-    if(isStomp(tr,br)){
+    // ✅ STOMP ALWAYS CHECKED FIRST
+    if(isStomp(tr,br) && sassy.hitCD<=0){
       sassy.hp -= 1;
-      tom.vy = -820;
+      sassy.hitCD = 0.35;       // short window before next damage
+      tom.vy = -980;            // bounce up so you can chain stomps
+      tom.hurt = Math.max(tom.hurt, 0.18); // prevents instant side-hit on the bounce
       sfxStomp();
       if(sassy.hp<=0) sassy.active=false;
     }else{
-      // boss hit = normal hit rules
-      hitTom(dir);
+      // body-hit only if Tom isn't in i-frames
+      if(tom.hurt<=0) hitTom(dir);
       tom.x = clamp(tom.x - dir*70, 1960, 2360);
     }
   }
 }
 
-/* ---------- Hazards draw ---------- */
+/* ---------- Draw hazards / world ---------- */
 function drawHazards(){
   for(const hz of hazards){
     const x = sx(hz.x);
@@ -869,7 +866,6 @@ function drawHazards(){
   }
 }
 
-/* ---------- World draw ---------- */
 function drawWorld(){
   px(0,0,W,H,"#8fd3ff");
   px(0,120,W,70,"#1f7a3a");
@@ -919,14 +915,11 @@ function doAction(){
     }
   }
 
-  // if carrying: throw
   if(tom.carry){ throwTourist(tom.carry); return; }
 
-  // at door: open store
   const s = storeAtDoor();
   if(s){ openStore(s); return; }
 
-  // tourist interaction/grab
   for(const t of tourists){
     if(!t.alive) continue;
     if(aabb(rect(tom.x,tom.y,tom.w,tom.h), rect(t.x,t.y,t.w,t.h))){
@@ -936,26 +929,15 @@ function doAction(){
     }
   }
 
-  // shoot if you have ammo and not near a door/tourist
   if(tom.ammo>0){
     if(spawnBullet()) return;
   }
 
-  // drink beer if small
   if(!tom.big && tom.beer>0){
     tom.beer -= 1;
     setTomSize(true);
     sfxCoin();
   }
-}
-
-/* ---------- Door check helper ---------- */
-function storeAtDoor(){
-  const tr = rect(tom.x,tom.y,tom.w,tom.h);
-  for(const s of stores){
-    if(aabb(tr, doorRect(s))) return s;
-  }
-  return null;
 }
 
 /* ---------- Main loop ---------- */
@@ -986,14 +968,13 @@ function loop(now){
       else setTempo(165);
 
       if(jumpTap && tom.onGround){
-        tom.vy = TOM_JUMP_VY; // ✅ higher than sassy
+        tom.vy = TOM_JUMP_VY;
         tom.onGround=false;
         sfxJump();
       }
 
       updateTom(dt);
 
-      // camera clamp
       const desired = tom.x - 170;
       const maxCam = Math.max(0, WORLD_W - W);
       camX = clamp(desired, 0, maxCam);
