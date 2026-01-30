@@ -1,167 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Forks Ave – JoJos Run</title>
-
-<!-- MOBILE-FIRST -->
-<meta name="viewport"
-content="width=device-width,
-initial-scale=1.0,
-maximum-scale=1.0,
-user-scalable=no">
+<meta charset="UTF-8" />
+<title>Forks Ave — JoJos Run</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 
 <style>
-/* ===== GLOBAL LOCKDOWN (NO COPY / NO SELECT) ===== */
-*{
-  -webkit-touch-callout:none;
-  -webkit-user-select:none;
-  user-select:none;
-  -webkit-tap-highlight-color:transparent;
-}
+  /* Mobile: prevent selection/callouts */
+  *{
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  html,body{
+    margin:0; padding:0;
+    width:100%; height:100%;
+    background:#071021;
+    overflow:hidden;
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
 
-html,body{
-  margin:0;
-  padding:0;
-  background:#0b1220;
-  font-family:system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  overflow:hidden;
-}
+  #wrap{
+    width:100vw; height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
 
-/* ===== GAME WRAPPER ===== */
-#wrap{
-  width:100vw;
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+  /* Internal game resolution is portrait (phone-friendly) */
+  canvas{
+    width:100vw;
+    max-width:520px;
+    height:100vh;
+    max-height:980px;
+    background:#8fd3ff;
+    image-rendering:pixelated;
+    touch-action:none;
+    border-radius:14px;
+  }
 
-/* Portrait-friendly canvas */
-canvas{
-  width:100vw;
-  max-width:520px;
-  height:100vh;
-  max-height:920px;
-  background:#87c9ff;
-  image-rendering:pixelated;
-  touch-action:none;
-}
+  #hud{
+    position:fixed;
+    top:0; left:0;
+    width:100%;
+    padding:8px 10px;
+    color:#fff;
+    background:rgba(0,0,0,.72);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    z-index:10;
+    box-sizing:border-box;
+    font-size:14px;
+  }
+  #hud .row{
+    display:flex; gap:10px; align-items:center;
+  }
+  #hud button{
+    border:none;
+    padding:8px 10px;
+    border-radius:12px;
+    background:#1f2937;
+    color:#fff;
+    font-weight:600;
+  }
 
-/* ===== HUD ===== */
-#hud{
-  position:fixed;
-  top:0; left:0;
-  width:100%;
-  background:rgba(0,0,0,.8);
-  color:white;
-  padding:6px 10px;
-  font-size:14px;
-  display:flex;
-  justify-content:space-between;
-  z-index:10;
-}
+  #controls{
+    position:fixed;
+    left:0; right:0;
+    bottom:10px;
+    display:flex;
+    justify-content:space-around;
+    gap:8px;
+    padding:0 10px;
+    z-index:10;
+    box-sizing:border-box;
+  }
+  .ctrl{
+    flex:1;
+    padding:14px 10px;
+    border:none;
+    border-radius:16px;
+    background:#111827;
+    color:#fff;
+    font-size:16px;
+    font-weight:800;
+    touch-action:none;
+  }
+  .ctrl.action{ background:#2d6cdf; }
+  .ctrl.jump{ background:#16a34a; }
 
-/* ===== CONTROLS ===== */
-#controls{
-  position:fixed;
-  bottom:8px;
-  left:0;
-  width:100%;
-  display:flex;
-  justify-content:space-around;
-  padding:0 8px;
-  z-index:10;
-}
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.82);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:20;
+  }
+  .panel{
+    width:92%;
+    max-width:560px;
+    background:#0f1e35;
+    color:#fff;
+    border-radius:18px;
+    padding:18px;
+    box-sizing:border-box;
+  }
+  .panel h1{ margin:0 0 8px; font-size:26px; }
+  .panel p{ margin:8px 0; line-height:1.35; }
+  .panel .btn{
+    width:100%;
+    margin-top:12px;
+    border:none;
+    border-radius:16px;
+    padding:14px;
+    font-size:18px;
+    font-weight:900;
+    background:#2d6cdf;
+    color:#fff;
+  }
+  .panel .btn.secondary{
+    background:#1f2937;
+    margin-top:8px;
+    font-weight:800;
+  }
 
-.ctrl{
-  font-size:16px;
-  padding:14px 16px;
-  border-radius:14px;
-  border:none;
-  background:#151515;
-  color:white;
-  min-width:70px;
-}
+  /* Speech bubble */
+  #bubble{
+    position:fixed;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:120px;
+    width:min(520px, 92vw);
+    background:#ffffff;
+    color:#0b1220;
+    border-radius:16px;
+    padding:12px 12px;
+    box-shadow:0 8px 24px rgba(0,0,0,.35);
+    z-index:30;
+    display:none;
+    white-space:pre-line;
+  }
+  #bubble .hint{
+    margin-top:8px;
+    font-size:12px;
+    opacity:.75;
+  }
 
-/* ===== OVERLAYS ===== */
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.82);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:20;
-}
-
-.panel{
-  width:92%;
-  max-width:520px;
-  background:#142033;
-  border-radius:18px;
-  padding:18px;
-  color:white;
-}
-
-.panel h1{
-  margin:0 0 8px;
-  font-size:26px;
-}
-
-.panel p{
-  margin:6px 0;
-  line-height:1.35;
-}
-
-.bigBtn{
-  width:100%;
-  margin-top:14px;
-  padding:14px;
-  font-size:18px;
-  font-weight:bold;
-  border-radius:14px;
-  border:none;
-  background:#2d6cdf;
-  color:white;
-}
-
-/* ===== BUS INTRO ===== */
-#busIntro{
-  position:absolute;
-  bottom:120px;
-  left:-160px;
-  width:140px;
-  height:60px;
-  background:#2ecc71;
-  border-radius:8px;
-}
-
-/* ===== SPEECH BUBBLE (PLACEHOLDER) ===== */
-.speech{
-  position:absolute;
-  max-width:220px;
-  background:white;
-  color:black;
-  padding:8px 10px;
-  border-radius:12px;
-  font-size:14px;
-  box-shadow:0 4px 12px rgba(0,0,0,.4);
-}
-
+  /* Ensure no iOS context menus on buttons */
+  #controls, #controls *{ -webkit-user-select:none; user-select:none; }
 </style>
 </head>
-
 <body>
 
 <div id="hud">
-  <div>
-    🍺 <span id="beer">6</span> |
-    💵 $<span id="cash">0</span> |
-    ⏱ <span id="time">150</span>
+  <div class="row">
+    <span>🍺 <b id="hudBeer">6</b></span>
+    <span>💵 $<b id="hudCash">0</b></span>
+    <span>⏱ <b id="hudTime">160</b>s</span>
+    <span>🧟 <b id="hudState">RUN</b></span>
   </div>
-  <div>
-    <button id="resetBtn">Reset</button>
+  <div class="row">
+    <button id="btnReset">Reset</button>
   </div>
 </div>
 
@@ -170,585 +173,505 @@ canvas{
 </div>
 
 <div id="controls">
-  <button class="ctrl" id="left">⬅</button>
-  <button class="ctrl" id="jump">⤴</button>
-  <button class="ctrl" id="right">➡</button>
-  <button class="ctrl" id="action">🟢</button>
+  <button class="ctrl" id="btnLeft">⬅</button>
+  <button class="ctrl jump" id="btnJump">JUMP</button>
+  <button class="ctrl" id="btnRight">➡</button>
+  <button class="ctrl action" id="btnAction">ACTION</button>
 </div>
 
-<!-- ===== START SCREEN ===== -->
-<div class="overlay" id="startScreen">
+<div id="bubble"></div>
+
+<div class="overlay" id="startOverlay">
   <div class="panel">
-    <h1>Forks Ave – JoJos Run</h1>
-    <p>
-      The crew bus just dropped Tom off at the 76.
-      <br><br>
-      You have limited time to make it down Forks Ave,
-      deal with tourists, survive vampires and werewolves,
-      defeat Sasquatch in the Thriftway parking lot,
-      and secure the hot case before the JoJos are gone.
-    </p>
+    <h1>Forks Ave — JoJos Run</h1>
+    <p><b>Story:</b> The crew bus just dropped Tom off at the 76. He’s a logger on a mission: reach Thriftway’s hot case for chicken strips and JoJos before they’re wiped out.</p>
+    <p><b>Tourists:</b> Talk first. Some ask directions and tip if you answer right. Some ask painfully stupid questions… and those are the ones you can throw.</p>
+    <p><b>Enemies:</b> Vampires (sometimes winged) and werewolves. Jump on them like classic platformers.</p>
+    <p><b>Beer:</b> Keeps Tom big. If Tom is big and gets hit → he becomes small. If Tom is small and gets hit → back to 76.</p>
 
-    <p>
-      <b>Tourists:</b> Talk first. Some tip for directions.
-      Some deserve to be thrown.
-    </p>
-
-    <p>
-      <b>Beer:</b> Keeps Tom big. Small + hit = back to 76.
-    </p>
-
-    <button class="bigBtn" id="startBtn">START</button>
+    <button class="btn" id="btnStart">START</button>
+    <button class="btn secondary" id="btnHow">Controls / Goal</button>
   </div>
 </div>
 
-<!-- ===== PAUSE / DIALOG OVERLAY ===== -->
-<div class="overlay" id="pauseOverlay" style="display:none"></div>
-
+<div class="overlay" id="howOverlay" style="display:none;">
+  <div class="panel">
+    <h1>Controls / Goal</h1>
+    <p><b>Mobile:</b> Use the on-screen buttons.</p>
+    <p><b>Keyboard:</b> Arrow keys or WASD to move, Space/Enter = Action, Up/W = Jump, Esc closes dialogs.</p>
+    <p><b>Goal:</b> Make it to Thriftway, defeat Sassy (Sasquatch) in the parking lot, then enter the door to win.</p>
+    <p><b>During dialogs:</b> Game pauses. Use Left/Right to pick an answer, Action to confirm.</p>
+    <button class="btn" id="btnBack">Back</button>
+  </div>
+</div>
 <script>
-/* ==================================================
-   CORE STATE (NO GAME LOGIC YET – PART 1 ONLY)
-================================================== */
+/* =========================================================
+   SECTION 2 — Core systems: state, input, pause, audio unlock
+========================================================= */
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-let paused = false;
+const hudBeer = document.getElementById("hudBeer");
+const hudCash = document.getElementById("hudCash");
+const hudTime = document.getElementById("hudTime");
+const hudState = document.getElementById("hudState");
+
+const bubble = document.getElementById("bubble");
+
 let running = false;
+let paused = false;
+let won = false;
 
-/* ===== BUS INTRO ANIMATION ===== */
-let busX = -160;
-let busActive = true;
-
-function drawBus(){
-  if(!busActive) return;
-  ctx.fillStyle = "#2ecc71";
-  ctx.fillRect(busX, canvas.height-140, 140, 60);
-  ctx.fillStyle="black";
-  ctx.fillText("CREW BUS", busX+28, canvas.height-105);
+function setPaused(v){
+  paused = v;
+  // bubble display controls pause mode, but we keep this separate
 }
 
-function updateBus(){
-  if(!busActive) return;
-  busX += 2;
-  if(busX > 60){
-    busActive = false;
-  }
+function showBubble(text, hint=""){
+  bubble.style.display = "block";
+  bubble.textContent = text + (hint ? "\n\n" + hint : "");
+}
+function hideBubble(){
+  bubble.style.display = "none";
+  bubble.textContent = "";
 }
 
-/* ===== MAIN LOOP (SAFE STUB) ===== */
-function loop(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  if(busActive){
-    updateBus();
-    drawBus();
-  }
-
-  if(running && !paused){
-    // GAME LOGIC COMES IN PART 2 & 3
-  }
-
-  requestAnimationFrame(loop);
-}
-
-loop();
-
-/* ===== BUTTONS ===== */
-document.getElementById("startBtn").onclick = ()=>{
-  document.getElementById("startScreen").style.display="none";
-  running = true;
-};
-
-document.getElementById("resetBtn").onclick = ()=>{
-  location.reload();
-};
-
-/* Action button placeholder */
-document.getElementById("action").onclick = ()=>{
-  // Will handle talk / grab / throw / shoot
-};
-
-/* Prevent long-press text menu */
-["left","right","jump","action"].forEach(id=>{
-  document.getElementById(id).addEventListener("contextmenu",e=>e.preventDefault());
-});
-
-</script>
-
-</body>
-</html>
-<script>
-/* ==================================================
-   PART 2 — WORLD, ACTORS, PHYSICS, AUDIO
-================================================== */
-
-/* ---------- WORLD SCALE (ZOOMED / BIGGER DETAIL) ---------- */
-const SCALE = 2;               // visual zoom
-const WORLD_W = 2400;
-const GROUND_Y = 560;
-
-/* ---------- CAMERA ---------- */
-let camX = 0;
-
-/* ---------- PLAYER ---------- */
-const tom = {
-  x: 80,
-  y: GROUND_Y - 96,
-  vx: 0,
-  vy: 0,
-  w: 48,
-  h: 96,
-  big: true,
-  beer: 6,
-  onGround: false,
-  facing: 1
-};
-
-/* ---------- INPUT ---------- */
-const input = { left:false, right:false, jump:false };
-
-/* ---------- GAME STATE ---------- */
-let timeLeft = 150;
-let cash = 0;
-
-/* ---------- ENEMIES ---------- */
-function enemy(type,x){
-  return {
-    type,
-    x,
-    y: GROUND_Y - 96,
-    w: 64,
-    h: 96,
-    vx: type==="werewolf"?120:90,
-    vy: 0,
-    winged: type==="vampire",
-    alive: true
-  };
-}
-
-const enemies = [
-  enemy("vampire", 700),
-  enemy("werewolf", 1050),
-  enemy("vampire", 1400)
-];
-
-/* ---------- TOURISTS ---------- */
-function tourist(x){
-  return {
-    x,
-    y: GROUND_Y - 96,
-    w: 56,
-    h: 88,
-    vx: Math.random()<0.5?-40:40,
-    known:false,
-    annoying:false,
-    carried:false,
-    sliding:false,
-    alive:true,
-    bubble:""
-  };
-}
-
-const tourists = [
-  tourist(350),
-  tourist(600),
-  tourist(900),
-  tourist(1200)
-];
-
-/* ---------- AUDIO (RICHER NES LOOP) ---------- */
-let audioCtx;
-let musicTimer;
-const melody = [
-  262,330,392,523,392,330,
-  294,370,440,587,440,370,
-  262,330,392,523
-];
-let mIndex = 0;
-
-function startMusic(){
-  if(audioCtx) return;
-  audioCtx = new AudioContext();
-  musicTimer = setInterval(()=>{
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type="square";
-    o.frequency.value = melody[mIndex++%melody.length];
-    g.gain.value=0.05;
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start();
-    o.stop(audioCtx.currentTime+0.12);
-  },180);
-}
-
-/* ---------- COLLISION ---------- */
-function aabb(a,b){
-  return a.x < b.x+b.w &&
-         a.x+a.w > b.x &&
-         a.y < b.y+b.h &&
-         a.y+a.h > b.y;
-}
-
-/* ---------- PHYSICS UPDATE ---------- */
-function updateGame(dt){
-  /* movement */
-  tom.vx = 0;
-  if(input.left){ tom.vx=-220; tom.facing=-1; }
-  if(input.right){ tom.vx=220; tom.facing=1; }
-
-  if(input.jump && tom.onGround){
-    tom.vy = -760;
-    tom.onGround=false;
-  }
-
-  tom.vy += 2000*dt;
-  tom.x += tom.vx*dt;
-  tom.y += tom.vy*dt;
-
-  if(tom.y >= GROUND_Y - tom.h){
-    tom.y = GROUND_Y - tom.h;
-    tom.vy = 0;
-    tom.onGround=true;
-  }
-
-  /* camera */
-  camX = Math.max(0, Math.min(tom.x-180, WORLD_W-canvas.width));
-
-  /* enemies */
-  enemies.forEach(e=>{
-    if(!e.alive) return;
-    e.x += e.vx*dt;
-    if(e.x<600||e.x>1600) e.vx*=-1;
-
-    if(aabb(tom,e)){
-      const stomp = tom.vy>120 && (tom.y+tom.h - e.y) < 32;
-      if(stomp){
-        if(e.type==="vampire" && e.winged){
-          e.winged=false;
-        }else{
-          e.alive=false;
-        }
-        tom.vy=-520;
-      }else{
-        if(tom.big){
-          tom.big=false;
-        }else{
-          resetTo76();
-        }
-      }
-    }
-  });
-
-  /* tourists */
-  tourists.forEach(t=>{
-    if(!t.alive) return;
-
-    if(t.sliding){
-      t.x += 600*dt*tom.facing;
-      enemies.forEach(e=>{
-        if(e.alive && aabb(t,e)){
-          e.alive=false;
-          t.alive=false;
-        }
-      });
-      return;
-    }
-
-    t.x += t.vx*dt;
-    if(Math.abs(t.x-camX-200)>120) t.vx*=-1;
-
-    if(aabb(tom,t) && tom.vy>120){
-      tom.vy=0;
-      tom.onGround=true;
-    }
-  });
-}
-
-/* ---------- RESET FIX (BIG DOES NOT TELEPORT) ---------- */
-function resetTo76(){
-  tom.x=80;
-  tom.y=GROUND_Y-tom.h;
-}
-
-/* ---------- ACTION BUTTON (UNIFIED) ---------- */
-function actionButton(){
-  startMusic();
-
-  /* tourist interaction */
-  for(const t of tourists){
-    if(!t.alive) continue;
-    if(aabb(tom,t)){
-      if(!t.known){
-        t.known=true;
-        t.annoying=Math.random()<0.5;
-        t.bubble = t.annoying ?
-          "When do deer turn into elk?" :
-          "How do we get to Thriftway?";
-        paused=true;
-        showBubble(t);
-        return;
-      }
-      if(t.annoying){
-        t.sliding=true;
-        paused=false;
-        return;
-      }
-    }
-  }
-}
-
-/* ---------- SPEECH BUBBLE ---------- */
-function showBubble(t){
-  const div=document.createElement("div");
-  div.className="speech";
-  div.textContent=t.bubble;
-  div.style.left=(t.x-camX+40)+"px";
-  div.style.top=(t.y-40)+"px";
-  document.body.appendChild(div);
-
-  setTimeout(()=>{
-    div.remove();
-    paused=false;
-  },1800);
-}
-
-/* ---------- DRAW ---------- */
-function drawGame(){
-  ctx.save();
-  ctx.scale(1,1);
-
-  /* sky */
-  ctx.fillStyle="#8fd3ff";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  /* ground */
-  ctx.fillStyle="#3a7d2a";
-  ctx.fillRect(0,GROUND_Y-camX,canvas.width,200);
-
-  /* Tom */
-  ctx.fillStyle=tom.big?"#2d6cdf":"#6aa2ff";
-  ctx.fillRect(tom.x-camX, tom.y, tom.w, tom.h);
-
-  /* enemies */
-  enemies.forEach(e=>{
-    if(!e.alive) return;
-    ctx.fillStyle=e.type==="werewolf"?"#7a4a2e":"#6a2c91";
-    ctx.fillRect(e.x-camX,e.y,e.w,e.h);
-  });
-
-  /* tourists */
-  tourists.forEach(t=>{
-    if(!t.alive) return;
-    ctx.fillStyle=t.annoying?"#ffb347":"#4caf50";
-    ctx.fillRect(t.x-camX,t.y,t.w,t.h);
-  });
-
-  ctx.restore();
-}
-
-/* ---------- MAIN LOOP EXTENSION ---------- */
-const oldLoop = loop;
-function extendedLoop(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  if(running && !paused){
-    updateGame(1/60);
-  }
-
-  drawGame();
-  requestAnimationFrame(extendedLoop);
-}
-
-extendedLoop();
-
-/* ---------- BUTTON BINDS ---------- */
-["left","right","jump"].forEach(id=>{
-  const el=document.getElementById(id);
-  el.onpointerdown=()=>{ input[id==="left"?"left":id==="right"?"right":"jump"]=true; };
-  el.onpointerup=()=>{ input[id==="left"?"left":id==="right"?"right":"jump"]=false; };
-});
-
-document.getElementById("action").onclick=actionButton;
-</script>
-<script>
-/* ==================================================
-   PART 3A — DOORS, INTERACTIONS, ANSWER MODE, PAUSE
-================================================== */
-
-/* ---------- EXTRA MOBILE SAFETY (stops long-press menus) ---------- */
+/* ---------- Prevent context menus / selection ---------- */
 document.addEventListener("contextmenu", e => e.preventDefault());
 document.addEventListener("selectstart", e => e.preventDefault());
 document.addEventListener("gesturestart", e => e.preventDefault());
-document.addEventListener("touchstart", e => {
-  // prevent iOS text selection/callout
-  if (e.target && e.target.classList && e.target.classList.contains("ctrl")) e.preventDefault();
-}, { passive:false });
 
-/* ---------- STORES + DOORS (stand at door only, no facing check) ---------- */
-const stores = [
-  { key:"76",     name:"Evergreen 76",  x: 40,  w: 220, door:{x: 40+98,  w: 32} },
-  { key:"SHELL",  name:"Shell",         x: 330, w: 220, door:{x: 330+96, w: 32} },
-  { key:"CHINOOK",name:"Chinook Rx",    x: 610, w: 240, door:{x: 610+104,w: 32} },
-  { key:"TRUE",   name:"True Value",    x: 910, w: 240, door:{x: 910+104,w: 32} },
-  { key:"TRANSIT",name:"Transit",       x: 1220,w: 220, door:{x: 1220+92,w: 32} },
-  { key:"CARWASH",name:"Car Wash",      x: 1470,w: 210, door:{x: 1470+88,w: 32} },
-  { key:"SASQ",   name:"Sasquatch Shop",x: 1730,w: 240, door:{x: 1730+104,w: 32} },
-  { key:"THRIFT", name:"Thriftway",     x: 2020,w: 340, door:{x: 2020+150,w: 48} },
+/* ---------- Input (mobile + keyboard) ---------- */
+const input = {
+  left:false, right:false,
+  jump:false,
+  actionTap:false, // edge-trigger
+  jumpTap:false,   // edge-trigger
+};
+
+function tapAction(){ input.actionTap = true; }
+function tapJump(){ input.jumpTap = true; }
+
+function bindHold(btn, key, prop){
+  btn.addEventListener("pointerdown", e => { e.preventDefault(); input[prop]=true; unlockAudioOnce(); }, {passive:false});
+  btn.addEventListener("pointerup",   e => { e.preventDefault(); input[prop]=false; }, {passive:false});
+  btn.addEventListener("pointercancel", e => { e.preventDefault(); input[prop]=false; }, {passive:false});
+  btn.addEventListener("pointerleave", e => { e.preventDefault(); input[prop]=false; }, {passive:false});
+}
+
+bindHold(document.getElementById("btnLeft"),  "ArrowLeft",  "left");
+bindHold(document.getElementById("btnRight"), "ArrowRight", "right");
+
+document.getElementById("btnJump").addEventListener("pointerdown", e => { e.preventDefault(); tapJump(); unlockAudioOnce(); }, {passive:false});
+document.getElementById("btnAction").addEventListener("pointerdown", e => { e.preventDefault(); tapAction(); unlockAudioOnce(); }, {passive:false});
+
+/* Keyboard */
+window.addEventListener("keydown",(e)=>{
+  if(e.repeat) return;
+  unlockAudioOnce();
+  const k=e.key;
+  if(k==="ArrowLeft"||k==="a") input.left=true;
+  if(k==="ArrowRight"||k==="d") input.right=true;
+  if(k==="ArrowUp"||k==="w") tapJump();
+  if(k===" "||k==="Enter") tapAction();
+  if(k==="Escape"){
+    if(paused){ closeInteraction(); }
+  }
+});
+window.addEventListener("keyup",(e)=>{
+  const k=e.key;
+  if(k==="ArrowLeft"||k==="a") input.left=false;
+  if(k==="ArrowRight"||k==="d") input.right=false;
+});
+
+/* ---------- Audio (mobile unlock) ---------- */
+let audioCtx = null;
+let musicTimer = null;
+let mIdx = 0;
+let tempoMs = 170;
+
+// richer NES-ish loop (simple, but not “2 notes”)
+const melody = [
+  262,294,330,392,440,392,330,294,
+  262,330,392,523,587,523,392,330,
+  294,330,370,440,494,440,370,330,
+  262,294,330,392,440,523,494,392
 ];
 
-/* Give stores a consistent building height */
+function startMusic(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  }
+  if(musicTimer) return;
+
+  musicTimer = setInterval(()=>{
+    if(!audioCtx) return;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type="square";
+    o.frequency.value = melody[mIdx++ % melody.length];
+    g.gain.value = 0.05;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + 0.12);
+  }, tempoMs);
+}
+
+function setTempo(ms){
+  tempoMs = ms;
+  if(musicTimer){
+    clearInterval(musicTimer);
+    musicTimer=null;
+    startMusic();
+  }
+}
+
+let audioUnlocked = false;
+function unlockAudioOnce(){
+  if(audioUnlocked) return;
+  audioUnlocked = true;
+  try{
+    startMusic();
+    if(audioCtx && audioCtx.state==="suspended") audioCtx.resume();
+  }catch{}
+}
+
+/* ---------- UI buttons ---------- */
+document.getElementById("btnReset").onclick = ()=>location.reload();
+
+document.getElementById("btnStart").onclick = ()=>{
+  document.getElementById("startOverlay").style.display="none";
+  running = true;
+  unlockAudioOnce();
+};
+
+document.getElementById("btnHow").onclick = ()=>{
+  document.getElementById("howOverlay").style.display="flex";
+};
+document.getElementById("btnBack").onclick = ()=>{
+  document.getElementById("howOverlay").style.display="none";
+};
+
+/* Utilities */
+function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+function aabb(a,b){
+  return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
+}
+function rect(x,y,w,h){ return {x,y,w,h}; }
+</script>
+<script>
+/* =========================================================
+   SECTION 3 — World layout, player, stores, detailed sprites
+========================================================= */
+
+const WORLD_W = 2600;
+const GROUND_Y = 560;
+
+const gravity = 2200;
+
+/* ---------- Player (Tom) ---------- */
+const tom = {
+  x: 90,
+  y: GROUND_Y-96,
+  w: 44,
+  h: 96,
+  vx: 0,
+  vy: 0,
+  onGround: false,
+  big: true,
+  beer: 6,
+  facing: 1,
+  carry: null,     // tourist ref
+};
+
+/* ---------- Money/time ---------- */
+let cash = 0;
+let timeLeft = 160;
+
+/* ---------- Camera ---------- */
+let camX = 0;
+
+/* ---------- Stores along the street (simple “Forks Ave” vibe) ---------- */
+/* Door-only interaction: small rectangle at bottom center */
+const stores = [
+  { key:"76",     name:"Evergreen 76",  x:  40, w: 220, color:"#9b1c1c", door:{dx: 95,  w: 34} },
+  { key:"SHELL",  name:"Shell",         x: 330, w: 220, color:"#d4a300", door:{dx: 92,  w: 34} },
+  { key:"CHINOOK",name:"Chinook Rx",    x: 610, w: 240, color:"#0f766e", door:{dx: 104, w: 34} },
+  { key:"TRUE",   name:"True Value",    x: 910, w: 240, color:"#5b21b6", door:{dx: 104, w: 34} },
+  { key:"TRANSIT",name:"Transit",       x: 1220,w: 220, color:"#334155", door:{dx: 92,  w: 34} },
+  { key:"CARWASH",name:"Car Wash",      x: 1470,w: 210, color:"#1d4ed8", door:{dx: 88,  w: 34} },
+  { key:"SASQ",   name:"Sasquatch Shop",x: 1730,w: 240, color:"#6d4c41", door:{dx: 104, w: 34} },
+  { key:"THRIFT", name:"Thriftway",     x: 2020,w: 360, color:"#b50000", door:{dx: 160, w: 48} },
+];
+
 const BUILD_Y = GROUND_Y - 210;
 const BUILD_H = 190;
 
-function doorRect(s){
-  return { x: s.door.x, y: GROUND_Y - 84, w: s.door.w, h: 84 };
-}
-function storeRect(s){
-  return { x: s.x, y: BUILD_Y, w: s.w, h: BUILD_H };
+function storeRect(s){ return rect(s.x, BUILD_Y, s.w, BUILD_H); }
+function doorRect(s){ return rect(s.x + s.door.dx, GROUND_Y-84, s.door.w, 84); }
+
+function storeAtDoor(){
+  const tr = rect(tom.x, tom.y, tom.w, tom.h);
+  for(const s of stores){
+    if(aabb(tr, doorRect(s))) return s;
+  }
+  return null;
 }
 
-/* ---------- INVENTORY + GOAL ---------- */
-let cream = 0;
-let ammo = 0;
-let earrings = 0;
-
-/* ---------- BOSS ARENA FLAG ---------- */
+/* ---------- Boss arena ---------- */
 let inBossArena = false;
 
-/* ---------- INTERACTION / ANSWER MODE STATE ---------- */
-let interactMode = "NONE"; // NONE | TOURIST_Q | STORE_MENU
-let activeTourist = null;
+/* =========================================================
+   SPRITES: procedural “pixel-art style” but recognizable
+========================================================= */
 
-let answerChoices = [];
-let answerIndex = 0;
-let correctIndex = 0;
-let bubbleEl = null;
+function px(x,y,w,h,c){
+  ctx.fillStyle=c; ctx.fillRect(x,y,w,h);
+}
+function outline(x,y,w,h,c="#0b1220"){
+  ctx.strokeStyle=c; ctx.lineWidth=2; ctx.strokeRect(x,y,w,h);
+}
 
-/* ---------- TOURIST BANKS ---------- */
-const touristDumb = [
+function drawTom(x,y){
+  // Tom the logger: hardhat, beard, flannel, caulk boots
+  // shadow
+  px(x+8, y+92, 28, 6, "rgba(0,0,0,.25)");
+
+  // hardhat
+  px(x+8, y+6, 28, 10, "#ffcc00");
+  px(x+6, y+14, 32, 6, "#eab308");
+
+  // face + beard
+  px(x+12, y+20, 20, 18, "#f2c9a0");
+  px(x+12, y+34, 20, 8, "#2b2b2b");      // beard
+  px(x+16, y+26, 4, 4, "#111827");       // eye
+  px(x+24, y+26, 4, 4, "#111827");       // eye
+
+  // flannel torso
+  px(x+10, y+40, 24, 28, "#b22222");
+  px(x+10, y+46, 24, 4, "#1e3a8a");
+  px(x+10, y+54, 24, 4, "#1e3a8a");
+  px(x+10, y+62, 24, 3, "#1e3a8a");
+
+  // arms
+  px(x+4,  y+44, 6, 22, "#b22222");
+  px(x+34, y+44, 6, 22, "#b22222");
+  // hands
+  px(x+4,  y+66, 6, 6, "#f2c9a0");
+  px(x+34, y+66, 6, 6, "#f2c9a0");
+
+  // pants
+  px(x+12, y+68, 10, 18, "#1f2937");
+  px(x+22, y+68, 10, 18, "#1f2937");
+
+  // caulk boots
+  px(x+10, y+86, 12, 8, "#111827");
+  px(x+22, y+86, 12, 8, "#111827");
+  px(x+12, y+94, 8, 2, "#9ca3af"); // spikes hint
+  px(x+24, y+94, 8, 2, "#9ca3af");
+
+  // small overlay
+  if(!tom.big){
+    px(x+4, y+6, 36, 90, "rgba(255,255,255,.12)");
+  }
+}
+
+function drawTourist(t, x,y){
+  // Tourist: hat/hoodie, camera, map; annoying tourists are bright
+  px(x+8,  y+10, 26, 8, t.annoying ? "#ff7a18" : "#16a34a");
+  px(x+12, y+18, 18, 16, "#f2c9a0");
+  px(x+16, y+24, 3, 3, "#111827");
+  px(x+23, y+24, 3, 3, "#111827");
+
+  px(x+10, y+34, 22, 24, "#64748b");    // hoodie
+  px(x+14, y+40, 14, 8,  "#111827");    // camera
+  px(x+4,  y+40, 8,  12, "#94a3b8");    // map
+
+  px(x+12, y+58, 9,  18, "#0f172a");    // legs
+  px(x+21, y+58, 9,  18, "#0f172a");
+  px(x+12, y+76, 9,  6,  "#111827");    // shoes
+  px(x+21, y+76, 9,  6,  "#111827");
+}
+
+function drawWerewolf(x,y){
+  // Werewolf: fur body + snout
+  px(x+6, y+14, 32, 38, "#6b4a2e");
+  px(x+10,y+22, 24, 18, "#4b2f1a");
+  px(x+26,y+28, 12, 8,  "#2b1a0f"); // snout
+  px(x+14,y+28, 3, 3,   "#111827");
+  px(x+20,y+28, 3, 3,   "#111827");
+
+  px(x+10,y+52, 12, 18, "#111827");
+  px(x+22,y+52, 12, 18, "#111827");
+  px(x+8, y+70, 14, 6,  "#111827");
+  px(x+22,y+70, 14, 6,  "#111827");
+}
+
+function drawVampire(e,x,y){
+  // Vampire: cloak + pale face + optional wings
+  if(e.winged){
+    px(x-8, y+18, 10, 18, "rgba(0,0,0,.35)");
+    px(x+40,y+18, 10, 18, "rgba(0,0,0,.35)");
+  }
+  px(x+8, y+14, 28, 40, "#3b1d5c");   // cloak
+  px(x+14,y+20, 16, 14, "#f3e8ff");   // face
+  px(x+17,y+24, 3,  3,  "#111827");
+  px(x+24,y+24, 3,  3,  "#111827");
+  px(x+20,y+32, 4,  3,  "#7c2d12");
+
+  px(x+12,y+54, 10, 16, "#111827");
+  px(x+22,y+54, 10, 16, "#111827");
+  px(x+10,y+70, 12, 6,  "#111827");
+  px(x+22,y+70, 12, 6,  "#111827");
+}
+
+/* Draw buildings behind actors */
+function drawStores(){
+  ctx.save();
+  ctx.translate(-camX,0);
+
+  for(const s of stores){
+    px(s.x, BUILD_Y, s.w, BUILD_H, s.color);
+    px(s.x, BUILD_Y, s.w, 10, "rgba(0,0,0,.25)");
+    // sign
+    ctx.fillStyle="rgba(255,255,255,.92)";
+    ctx.font="bold 14px system-ui";
+    ctx.textAlign="center";
+    ctx.fillText(s.name, s.x + s.w/2, BUILD_Y + 26);
+
+    // windows
+    for(let i=0;i<Math.floor(s.w/70);i++){
+      px(s.x+16+i*70, BUILD_Y+54, 42, 22, "rgba(255,255,255,.18)");
+    }
+    // door
+    const d = doorRect(s);
+    px(d.x, d.y, d.w, d.h, "#111827");
+    px(d.x+4, d.y+14, d.w-8, 18, "rgba(255,255,255,.25)");
+  }
+  ctx.restore();
+}
+</script>
+<script>
+/* =========================================================
+   SECTION 4 — Enemies, tourists, interactions, crossings, elk
+========================================================= */
+
+/* ---------- Enemies ---------- */
+function makeEnemy(type,x){
+  return {
+    type,
+    x,
+    y: GROUND_Y-76,
+    w: 42,
+    h: 76,
+    vx: type==="werewolf"? 90 : 70,
+    vy: 0,
+    winged: type==="vampire",
+    alive: true,
+  };
+}
+let enemies = [
+  makeEnemy("vampire", 760),
+  makeEnemy("werewolf", 1050),
+  makeEnemy("vampire", 1380),
+  makeEnemy("werewolf", 1620),
+];
+
+/* ---------- Tourists ---------- */
+function makeTourist(x){
+  return {
+    x,
+    y: GROUND_Y-82,
+    w: 38,
+    h: 82,
+    vx: Math.random()<0.5 ? -40 : 40,
+    alive:true,
+    known:false,
+    annoying:null,
+    throwable:false,
+    sliding:false,
+    slideV:0,
+    question:"",
+    smart:false,
+  };
+}
+let tourists = [
+  makeTourist(420),
+  makeTourist(640),
+  makeTourist(980),
+  makeTourist(1280),
+  makeTourist(1540),
+];
+
+/* Tourist text banks */
+const dumbQs = [
   "“When do the deer turn into elk?”",
   "“Where can we find Edward?”",
   "“Is the Cullen house on Airbnb?”",
   "“Do park rangers herd whales through the Peugeot sound?”",
   "“Is Jacob available for birthday parties?”",
-  "“Do vampires sparkle in the shade or only in direct drizzle?”"
+  "“Where’s the vampire sparkle viewing area?”"
 ];
 
-const directionQuestions = [
-  { q:"“How do we get to Thriftway?”", correct:"Go down Forks Ave until you see the red sign.", wrong:[
-    "Take the left at Peugeot Sound and follow the whales.",
-    "Walk until Edward appears and ask him.",
-    "Wait for a park ranger to herd you there."
-  ]},
-  { q:"“Where’s Chinook Pharmacy?”", correct:"Keep going—near the main strip by the shops.", wrong:[
-    "It’s behind the vampire treaty line.",
-    "Follow the howling. If you see wolves, you’re close.",
-    "Turn where the deer become elk."
-  ]},
-  { q:"“How do we get to the Transit Center?”", correct:"Stay on Forks Ave—look for the bus stop.", wrong:[
-    "Summon a werewolf Uber.",
-    "Ask Sassy. He’s the local dispatcher.",
-    "Go to La Push and admit defeat."
-  ]}
+const directionQs = [
+  { q:"“How do we get to Thriftway?”",
+    correct:"Go down Forks Ave until the big red sign.",
+    wrong:["Ask the nearest werewolf for Yelp directions.",
+           "Follow the whales through Peugeot Sound.",
+           "Wait for Edward to appear and lead you."] },
+  { q:"“Where’s Chinook Pharmacy?”",
+    correct:"Stay on the main drag—keep walking.",
+    wrong:["It’s in the forbidden sparkle zone.",
+           "Turn where the deer become elk.",
+           "Cross into La Push and howl twice."] },
+  { q:"“Where’s the Transit Center?”",
+    correct:"Keep to Forks Ave—watch for the bus stop.",
+    wrong:["Summon a vampire Uber.",
+           "Find a ranger and ask about whale herding.",
+           "Go to the 76 and request a teleport."] },
 ];
 
-/* ---------- HARD PAUSE (freezes everything, including timer) ---------- */
-function setPaused(p){
-  paused = p;
-  const ov = document.getElementById("pauseOverlay");
-  ov.style.display = p ? "block" : "none";
+/* ---------- Interaction mode ---------- */
+let mode = "RUN"; // RUN | TOURIST | STORE | CROSS | WIN | BOSS
+let activeTourist = null;
+let activeStore = null;
+let answerChoices = [];
+let answerIndex = 0;
+let correctIndex = 0;
+
+/* Close interaction */
+function closeInteraction(){
+  mode = "RUN";
+  activeTourist=null;
+  activeStore=null;
+  answerChoices=[];
+  hideBubble();
+  setPaused(false);
 }
 
-/* ---------- SPEECH BUBBLE UI ---------- */
-function killBubble(){
-  if(bubbleEl){ bubbleEl.remove(); bubbleEl=null; }
-}
-function showBubbleAt(x, y, text){
-  killBubble();
-  const div=document.createElement("div");
-  div.className="speech";
-  div.textContent=text;
-  div.style.left = `${x}px`;
-  div.style.top  = `${y}px`;
-  document.body.appendChild(div);
-  bubbleEl=div;
-}
-function updateBubbleChoice(){
-  if(!bubbleEl) return;
-  const base = bubbleEl.dataset.base || bubbleEl.textContent;
-  // Render choices line for answer mode
-  let line = "\n\n";
-  for(let i=0;i<answerChoices.length;i++){
-    line += (i===answerIndex ? "▶ " : "  ") + answerChoices[i] + "\n";
-  }
-  bubbleEl.textContent = bubbleEl.dataset.base + line;
-}
-
-/* ---------- STORE MENU (simple bubble list for now) ---------- */
-function openStoreMenu(store){
-  interactMode="STORE_MENU";
+/* Open tourist bubble */
+function openTourist(t){
+  mode="TOURIST";
   setPaused(true);
+  activeTourist=t;
+  t.known=true;
 
-  const px = (tom.x - camX) + 60;
-  const py = (tom.y) - 80;
-
-  let lines = `🛒 ${store.name}\n`;
-  if(store.key==="SHELL")   lines += "1) Buy beer case (+6) — $10\n";
-  if(store.key==="CHINOOK") lines += "1) Blister cream — $8\n";
-  if(store.key==="TRUE")    lines += "1) Ammo (+3) — $9\n";
-  if(store.key==="SASQ")    lines += "1) Earrings — $12\n";
-  if(store.key==="CARWASH") lines += "1) Wash car +$5 (free)\n";
-  if(store.key==="TRANSIT") lines += "1) Bus to Thriftway — $20\n";
-  if(store.key==="76")      lines += "1) Nothing. Just vibes.\n";
-  if(store.key==="THRIFT")  lines += inBossArena ? "Door is locked until Sassy is defeated.\n" : "Parking lot ahead…\n";
-
-  lines += "\nPress ACTION to select (or JUMP to leave).";
-  showBubbleAt(px, py, lines);
-  bubbleEl.dataset.base = lines; // keep for consistent formatting
-}
-
-/* ---------- DOOR CHECK ---------- */
-function getStoreAtDoor(){
-  const t = { x: tom.x, y: tom.y, w: tom.w, h: tom.h };
-  for(const s of stores){
-    const d = doorRect(s);
-    // Door rect is in world coords, Tom uses world coords
-    const dr = { x:d.x, y:d.y, w:d.w, h:d.h };
-    if(aabb(t, dr)) return s;
-  }
-  return null;
-}
-
-/* ---------- TOURIST INTERACTION (bubble + answer mode) ---------- */
-function openTouristInteraction(t){
-  activeTourist = t;
-  t.known = true;
-
-  setPaused(true);
-
-  const px = (t.x - camX) + 50;
-  const py = (t.y) - 70;
-
-  // Decide smart vs annoying once
-  if(t.annoying === false && t.annoying !== true){
-    t.annoying = Math.random() < 0.52;
+  if(t.annoying===null){
+    t.annoying = Math.random() < 0.55;
+    t.smart = !t.annoying;
   }
 
   if(t.annoying){
-    interactMode="TOURIST_Q";
-    const dumb = touristDumb[Math.floor(Math.random()*touristDumb.length)];
-    showBubbleAt(px, py, dumb + "\n\n(ACTION to continue)");
-    bubbleEl.dataset.base = dumb;
-    answerChoices = [];
+    t.throwable = true;
+    const q = dumbQs[Math.floor(Math.random()*dumbQs.length)];
+    showBubble(q, "ACTION to continue");
+    answerChoices=[];
     return;
   }
 
-  // Smart: ask directions, answer with Left/Right + Action
-  interactMode="TOURIST_Q";
-  const dq = directionQuestions[Math.floor(Math.random()*directionQuestions.length)];
-
-  // build shuffled choices
+  // Smart: ask directions; choose with Left/Right; Action confirms
+  const dq = directionQs[Math.floor(Math.random()*directionQs.length)];
   const choices = [dq.correct, ...dq.wrong];
   for(let i=choices.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
@@ -758,681 +681,586 @@ function openTouristInteraction(t){
   answerIndex = 0;
   correctIndex = choices.indexOf(dq.correct);
 
-  showBubbleAt(px, py, dq.q);
-  bubbleEl.dataset.base = dq.q;
-  updateBubbleChoice();
+  const display = dq.q + "\n\n" + renderChoices();
+  showBubble(display, "←/→ choose  •  ACTION confirm  •  ESC/JUMP close");
 }
 
-/* ---------- ANSWER NAV (uses same movement controls) ---------- */
-function navAnswer(dir){
-  if(interactMode!=="TOURIST_Q") return;
-  if(answerChoices.length===0) return;
-  answerIndex = (answerIndex + dir + answerChoices.length) % answerChoices.length;
-  updateBubbleChoice();
-}
-
-function submitAnswer(){
-  // Store menu simple "1 option" selection via action
-  if(interactMode==="STORE_MENU"){
-    const s = getStoreAtDoor();
-    if(!s){ closeInteraction(); return; }
-
-    // apply store logic
-    if(s.key==="SHELL"){
-      if(cash>=10){ cash-=10; tom.beer+=6; }
-    }
-    if(s.key==="CHINOOK"){
-      if(cash>=8){ cash-=8; cream=1; }
-    }
-    if(s.key==="TRUE"){
-      if(cash>=9){ cash-=9; ammo+=3; }
-    }
-    if(s.key==="SASQ"){
-      if(cash>=12 && earrings===0){ cash-=12; earrings=1; timeLeft+=15; }
-    }
-    if(s.key==="CARWASH"){
-      cash += 5;
-    }
-    if(s.key==="TRANSIT"){
-      if(cash>=20 && !inBossArena){
-        cash -= 20;
-        tom.x = 1900; // jump near Thriftway area
-      }
-    }
-
-    closeInteraction();
-    return;
+function renderChoices(){
+  let s="";
+  for(let i=0;i<answerChoices.length;i++){
+    s += (i===answerIndex ? "▶ " : "  ") + answerChoices[i] + "\n";
   }
+  return s.trimEnd();
+}
 
-  // Tourist mode
-  if(interactMode==="TOURIST_Q"){
-    if(!activeTourist){
-      closeInteraction(); return;
-    }
+/* Open store menu */
+function openStore(s){
+  mode="STORE";
+  setPaused(true);
+  activeStore=s;
 
-    // Annoying tourist identified => becomes throwable
-    if(activeTourist.annoying){
-      activeTourist.known = true;
-      activeTourist.throwable = true;
-      closeInteraction();
-      return;
-    }
+  let text = `🛒 ${s.name}\n`;
+  if(s.key==="SHELL")   text += "1) Buy beer case (+6) — $10\n";
+  if(s.key==="CHINOOK") text += "1) Blister cream — $8\n";
+  if(s.key==="TRUE")    text += "1) Ammo (+3) — $9\n";
+  if(s.key==="SASQ")    text += "1) Earrings (wife) — $12 (+15s)\n";
+  if(s.key==="CARWASH") text += "1) Wash car +$5 (free)\n";
+  if(s.key==="TRANSIT") text += "1) Bus to Thriftway zone — $20\n";
+  if(s.key==="76")      text += "1) Nothing. Just fumes and regret.\n";
+  if(s.key==="THRIFT"){
+    if(!inBossArena) text += "Parking lot ahead…\n";
+    else text += "Door locked until Sassy is defeated.\n";
+  }
+  text += "\nACTION buys option 1.  JUMP closes.";
+  showBubble(text);
+}
 
-    // Smart tourist: tip if correct
-    const correct = (answerIndex === correctIndex);
-    if(correct){
-      cash += 8 + Math.floor(Math.random()*6);
-    }else{
-      timeLeft = Math.max(0, timeLeft - 3);
+/* Apply store purchase */
+function buyStore(){
+  const s=activeStore;
+  if(!s) return;
+
+  if(s.key==="SHELL"){
+    if(cash>=10){ cash-=10; tom.beer+=6; }
+  }
+  if(s.key==="CHINOOK"){
+    if(cash>=8){ cash-=8; /* cream */ }
+  }
+  if(s.key==="TRUE"){
+    if(cash>=9){ cash-=9; /* ammo */ }
+  }
+  if(s.key==="SASQ"){
+    if(cash>=12){ cash-=12; timeLeft += 15; }
+  }
+  if(s.key==="CARWASH"){
+    cash += 5;
+  }
+  if(s.key==="TRANSIT"){
+    if(cash>=20 && !inBossArena){
+      cash -= 20;
+      tom.x = 1880;
+      tom.y = GROUND_Y - tom.h;
+      tom.vx = tom.vy = 0;
     }
-    closeInteraction();
   }
 }
 
-function closeInteraction(){
-  interactMode="NONE";
-  activeTourist=null;
-  answerChoices=[];
-  killBubble();
-  setPaused(false);
+/* ---------- Throwing tourists (only annoying/throwable) ---------- */
+function throwTourist(t){
+  // straight-line slide along ground
+  t.sliding = true;
+  t.slideV = 620 * tom.facing;
+  tom.carry = null;
 }
 
-/* ---------- OVERRIDE ACTION BUTTON FROM PART 2 ---------- */
-document.getElementById("action").onclick = ()=>{
-  // if paused and in interaction, ACTION should submit/continue
-  if(paused){
-    submitAnswer();
-    return;
-  }
-
-  startMusic();
-
-  // Boss arena gating in Part 3B
-  if(inBossArena){
-    return;
-  }
-
-  // Store door check first
-  const store = getStoreAtDoor();
-  if(store){
-    openStoreMenu(store);
-    return;
-  }
-
-  // Tourist check
-  for(const t of tourists){
-    if(!t.alive) continue;
-    if(aabb(tom,t)){
-      openTouristInteraction(t);
-      return;
-    }
-  }
-};
-
-/* ---------- USE MOVE CONTROLS FOR ANSWERS WHEN PAUSED ---------- */
-function pointerBindNav(id, dir){
-  const el=document.getElementById(id);
-  el.onpointerdown = (e)=>{
-    e.preventDefault();
-    if(paused && interactMode==="TOURIST_Q" && answerChoices.length>0){
-      navAnswer(dir);
-    }else{
-      input[id==="left"?"left":"right"] = true;
-    }
-  };
-  el.onpointerup = (e)=>{
-    e.preventDefault();
-    input[id==="left"?"left":"right"] = false;
-  };
-  el.onpointercancel = el.onpointerup;
-  el.onpointerleave = el.onpointerup;
-}
-
-pointerBindNav("left", -1);
-pointerBindNav("right", +1);
-
-/* Jump button doubles as "leave interaction" */
-document.getElementById("jump").onclick = ()=>{
-  if(paused){
-    closeInteraction();
-    return;
-  }
-  input.jump = true;
-  setTimeout(()=>input.jump=false, 90);
-};
-
-/* ---------- BOSS ARENA ENTRY RULE (clear tourists/enemies) ---------- */
-function checkBossArena(){
-  if(inBossArena) return;
-  if(tom.x > 1980){
-    inBossArena = true;
-    // Clear everything before boss fight
-    enemies.forEach(e=>e.alive=false);
-    tourists.forEach(t=>t.alive=false);
-  }
-}
-
-/* ---------- PATCH PART 2 LOOP: include boss arena check + timer freeze ---------- */
-const _updateGame = updateGame;
-updateGame = function(dt){
-  // freeze timer if paused
-  if(!paused){
-    timeLeft -= dt;
-    if(timeLeft < 0) timeLeft = 0;
-  }
-  checkBossArena();
-  _updateGame(dt);
-};
-
-/* ---------- DRAW STORES + DOORS (visual clarity) ---------- */
-const _drawGame = drawGame;
-drawGame = function(){
-  // draw base
-  _drawGame();
-
-  // draw buildings + doors (more recognizable)
-  ctx.save();
-  ctx.translate(-camX,0);
-
-  for(const s of stores){
-    // building body
-    ctx.fillStyle = s.key==="THRIFT" ? "#b50000" : "#334155";
-    ctx.fillRect(s.x, BUILD_Y, s.w, BUILD_H);
-
-    // roof trim
-    ctx.fillStyle="rgba(0,0,0,.25)";
-    ctx.fillRect(s.x, BUILD_Y, s.w, 10);
-
-    // sign
-    ctx.fillStyle="rgba(255,255,255,.85)";
-    ctx.font="bold 14px system-ui";
-    ctx.textAlign="center";
-    ctx.fillText(s.name, s.x + s.w/2, BUILD_Y + 26);
-
-    // windows
-    ctx.fillStyle="rgba(255,255,255,.18)";
-    for(let i=0;i<Math.floor(s.w/70);i++){
-      ctx.fillRect(s.x+18+i*70, BUILD_Y+50, 42, 22);
-    }
-
-    // door
-    const d=doorRect(s);
-    ctx.fillStyle="#111827";
-    ctx.fillRect(d.x, d.y, d.w, d.h);
-    ctx.fillStyle="rgba(255,255,255,.25)";
-    ctx.fillRect(d.x+4, d.y+10, d.w-8, 18);
-  }
-
-  ctx.restore();
-};
-</script>
-<script>
-/* ==================================================
-   PART 3B — CROSSINGS, ELK, BOSS, WIN, MUSIC RAMP, HUD
-================================================== */
-
-/* ---------- HUD LIVE UPDATE ---------- */
-function updateHUD(){
-  document.getElementById("beer").textContent = tom.beer;
-  document.getElementById("cash").textContent = cash;
-  document.getElementById("time").textContent = Math.max(0, Math.floor(timeLeft));
-}
-
-/* Patch the render loop to refresh HUD each frame */
-const _extendedLoop = extendedLoop;
-extendedLoop = function(){
-  updateHUD();
-  _extendedLoop();
-};
-
-/* ---------- BETTER MUSIC (MORE NOTES + TEMPO RAMP) ---------- */
-const richerMelody = [
-  262,294,330,392,440,392,330,294, // phrase A
-  262,330,392,523,587,523,392,330, // phrase B
-  294,330,370,440,494,440,370,330, // phrase C
-  262,294,330,392,440,523,494,392  // phrase D
-];
-
-let musicMs = 170;  // base tempo
-let musicRunning = false;
-
-function setTempo(ms){
-  musicMs = ms;
-  if(audioCtx && musicRunning){
-    clearInterval(musicTimer);
-    musicTimer = setInterval(()=>{
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = "square";
-      o.frequency.value = richerMelody[mIndex++ % richerMelody.length];
-      g.gain.value = 0.05;
-      o.connect(g); g.connect(audioCtx.destination);
-      o.start();
-      o.stop(audioCtx.currentTime + 0.12);
-    }, musicMs);
-  }
-}
-
-const _startMusic = startMusic;
-startMusic = function(){
-  _startMusic();
-  if(!audioCtx) return;
-  musicRunning = true;
-  // switch to richer melody/tempo
-  clearInterval(musicTimer);
-  musicTimer = setInterval(()=>{
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = "square";
-    o.frequency.value = richerMelody[mIndex++ % richerMelody.length];
-    g.gain.value = 0.05;
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start();
-    o.stop(audioCtx.currentTime + 0.12);
-  }, musicMs);
-};
-
-/* Tempo ramp based on progress */
-function updateMusicRamp(){
-  if(!audioCtx || !musicRunning) return;
-
-  // Near Thriftway, speed up
-  if(inBossArena) setTempo(110);
-  else if(tom.x > 1800) setTempo(130);
-  else if(tom.x > 1400) setTempo(150);
-  else setTempo(170);
-}
-
-/* ---------- STREET CROSSINGS (FROGGER STYLE) ---------- */
-let crossingMode = false;
-let crossingIndex = 0;
-const crossings = [
-  { triggerX: 520, done:false },
-  { triggerX: 1080, done:false },
-  { triggerX: 1560, done:false },
-];
-
-const crossingArea = { x: 40, y: 180, w: 280, h: 320 };
-const lanes = [
-  { y: crossingArea.y + 70,  dir:  1, spd: 180 },
-  { y: crossingArea.y + 150, dir: -1, spd: 230 },
-  { y: crossingArea.y + 230, dir:  1, spd: 260 },
-];
-
-const cars = [];
-const frog = { x: crossingArea.x + 130, y: crossingArea.y + crossingArea.h - 40, w: 24, h: 24 };
-
+/* ---------- Crossings (Frogger mini) ---------- */
+let cross = null;
 function startCrossing(){
-  crossingMode = true;
-  setPaused(false); // not paused, just alternate mode
-  interactMode = "NONE";
-  killBubble();
+  mode="CROSS";
+  setPaused(false);
+  hideBubble();
 
-  // reset frog + cars
-  frog.x = crossingArea.x + 130;
-  frog.y = crossingArea.y + crossingArea.h - 40;
-  cars.length = 0;
-
-  // slow player physics while crossing
-  tom.vx = tom.vy = 0;
+  cross = {
+    area: rect(40, 170, 280, 350),
+    frog: rect(40+130, 170+350-34, 22, 22),
+    cars: [],
+    lanes: [
+      { y: 170+80,  dir:  1, spd: 180 },
+      { y: 170+170, dir: -1, spd: 240 },
+      { y: 170+260, dir:  1, spd: 280 },
+    ],
+  };
 }
 
-function finishCrossing(){
-  crossingMode = false;
-  // put Tom back on road where he triggered
-  tom.y = GROUND_Y - tom.h;
-  tom.vy = 0;
-  tom.onGround = true;
-}
+function updateCross(dt){
+  if(!cross) return;
 
-function updateCrossing(dt){
-  // Spawn cars
-  for(const ln of lanes){
+  // spawn cars
+  for(const ln of cross.lanes){
     if(Math.random() < 0.02){
-      cars.push({
-        x: ln.dir > 0 ? crossingArea.x - 40 : crossingArea.x + crossingArea.w + 40,
+      cross.cars.push({
+        x: ln.dir>0 ? cross.area.x-60 : cross.area.x+cross.area.w+60,
         y: ln.y,
-        w: 46,
-        h: 20,
-        vx: ln.dir * ln.spd
+        w: 46, h: 18,
+        vx: ln.dir*ln.spd
       });
     }
   }
 
-  // Move cars
-  for(let i=cars.length-1;i>=0;i--){
-    cars[i].x += cars[i].vx * dt;
-    if(cars[i].x < crossingArea.x - 100 || cars[i].x > crossingArea.x + crossingArea.w + 100){
-      cars.splice(i,1);
+  // move cars
+  for(let i=cross.cars.length-1;i>=0;i--){
+    cross.cars[i].x += cross.cars[i].vx*dt;
+    if(cross.cars[i].x < cross.area.x-140 || cross.cars[i].x > cross.area.x+cross.area.w+140){
+      cross.cars.splice(i,1);
     }
   }
 
-  // Controls for crossing:
-  // Left/Right move, Jump = up step, Action = down step
-  if(input.left) frog.x -= 160*dt;
-  if(input.right) frog.x += 160*dt;
+  // left/right continuous
+  if(input.left)  cross.frog.x -= 160*dt;
+  if(input.right) cross.frog.x += 160*dt;
+  cross.frog.x = clamp(cross.frog.x, cross.area.x+6, cross.area.x+cross.area.w-cross.frog.w-6);
 
-  frog.x = Math.max(crossingArea.x+6, Math.min(frog.x, crossingArea.x+crossingArea.w- frog.w-6));
-
-  // Jump button (tap) moves up a step; Action moves down a step
-  // Implemented by event hooks below (one-step)
-  // Collision with cars
-  for(const c of cars){
-    if(aabb(frog,c)){
-      // crossing hit behaves like enemy hit
-      if(tom.big){
-        tom.big = false;
-      }else{
-        resetTo76();
-      }
-      // restart crossing in place
-      frog.x = crossingArea.x + 130;
-      frog.y = crossingArea.y + crossingArea.h - 40;
-      cars.length = 0;
+  // collisions
+  for(const c of cross.cars){
+    if(aabb(cross.frog, c)){
+      // crossing hit: big->small, small->reset
+      if(tom.big) tom.big=false;
+      else resetTo76();
+      // restart frog/cars
+      cross.frog.x = cross.area.x+130;
+      cross.frog.y = cross.area.y+cross.area.h-34;
+      cross.cars.length = 0;
       break;
     }
   }
 
-  // Win crossing if reach top
-  if(frog.y <= crossingArea.y + 10){
-    finishCrossing();
+  // finish
+  if(cross.frog.y <= cross.area.y+10){
+    mode="RUN";
+    cross=null;
   }
 }
 
-function drawCrossing(){
-  // overlay street panel
-  ctx.fillStyle = "rgba(0,0,0,.55)";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+function crossStepUp(){ if(cross){ cross.frog.y = Math.max(cross.area.y+8, cross.frog.y-54); } }
+function crossStepDown(){ if(cross){ cross.frog.y = Math.min(cross.area.y+cross.area.h-34, cross.frog.y+54); } }
 
-  ctx.fillStyle = "#1b1b1b";
-  ctx.fillRect(crossingArea.x, crossingArea.y, crossingArea.w, crossingArea.h);
+function drawCross(){
+  if(!cross) return;
+  // overlay dark
+  px(0,0,canvas.width,canvas.height,"rgba(0,0,0,.55)");
+  px(cross.area.x, cross.area.y, cross.area.w, cross.area.h, "#1b1b1b");
 
   // lane markers
-  ctx.fillStyle = "rgba(255,255,255,.15)";
-  for(const ln of lanes){
-    ctx.fillRect(crossingArea.x+10, ln.y+10, crossingArea.w-20, 2);
+  for(const ln of cross.lanes){
+    px(cross.area.x+10, ln.y+9, cross.area.w-20, 2, "rgba(255,255,255,.15)");
   }
 
   // cars
-  ctx.fillStyle = "#f1c40f";
-  for(const c of cars){
-    ctx.fillRect(c.x, c.y, c.w, c.h);
+  for(const c of cross.cars){
+    px(c.x, c.y, c.w, c.h, "#facc15");
+    px(c.x+6, c.y+4, 8, 6, "rgba(0,0,0,.2)");
   }
 
-  // frog icon (Tom crossing)
-  ctx.fillStyle = tom.big ? "#2d6cdf" : "#6aa2ff";
-  ctx.fillRect(frog.x, frog.y, frog.w, frog.h);
-
-  ctx.fillStyle="rgba(255,255,255,.85)";
+  // frog (Tom icon)
+  px(cross.frog.x, cross.frog.y, cross.frog.w, cross.frog.h, tom.big ? "#2d6cdf" : "#6aa2ff");
+  ctx.fillStyle="rgba(255,255,255,.9)";
   ctx.font="bold 14px system-ui";
   ctx.textAlign="center";
-  ctx.fillText("CROSS THE STREET", canvas.width/2, crossingArea.y - 14);
+  ctx.fillText("CROSS THE STREET", canvas.width/2, cross.area.y-12);
 }
 
-/* Hook Jump/Action step moves during crossing */
-const _jumpOnClick = document.getElementById("jump").onclick;
-document.getElementById("jump").onclick = ()=>{
-  if(paused){
-    closeInteraction();
-    return;
-  }
-  if(crossingMode){
-    frog.y -= 52;
-    frog.y = Math.max(crossingArea.y + 8, frog.y);
-    return;
-  }
-  _jumpOnClick();
-};
-
-const _actionHandler = document.getElementById("action").onclick;
-document.getElementById("action").onclick = ()=>{
-  if(crossingMode){
-    frog.y += 52;
-    frog.y = Math.min(crossingArea.y + crossingArea.h - 34, frog.y);
-    return;
-  }
-  _actionHandler();
-};
-
-/* ---------- ELK HAZARD ---------- */
-const elk = { active:false, x:0, y:GROUND_Y-74, w:90, h:50, vx:-520 };
+/* ---------- Elk hazard ---------- */
+const elk = { active:false, x:0, y:GROUND_Y-54, w:90, h:48, vx:-560 };
 
 function maybeSpawnElk(){
-  if(inBossArena) return;
-  if(elk.active) return;
-  if(tom.x > 1250 && Math.random() < 0.01){
-    elk.active = true;
+  if(inBossArena || elk.active) return;
+  if(tom.x > 1200 && Math.random() < 0.012){
+    elk.active=true;
     elk.x = tom.x + 520;
   }
 }
 
 function updateElk(dt){
   if(!elk.active) return;
-  elk.x += elk.vx * dt;
-  if(elk.x < tom.x - 900) elk.active = false;
+  elk.x += elk.vx*dt;
+  if(elk.x < tom.x - 900) elk.active=false;
 
-  // collision
-  if(aabb(tom, elk)){
-    const stomp = tom.vy>120 && (tom.y+tom.h - elk.y) < 26;
+  const tr = rect(tom.x, tom.y, tom.w, tom.h);
+  const er = rect(elk.x, elk.y, elk.w, elk.h);
+
+  if(aabb(tr, er)){
+    const stomp = tom.vy > 120 && (tom.y+tom.h - elk.y) < 26;
     if(stomp){
-      elk.active = false;
-      tom.vy = -520;
+      elk.active=false;
+      tom.vy = -620;
     }else{
       if(tom.big) tom.big=false;
       else resetTo76();
-      elk.active = false;
+      elk.active=false;
     }
   }
 }
 
 function drawElk(){
   if(!elk.active) return;
-  ctx.fillStyle="#c68642";
-  ctx.fillRect(elk.x-camX, elk.y, elk.w, elk.h);
-  ctx.fillStyle="rgba(0,0,0,.22)";
-  ctx.fillRect(elk.x-camX+10, elk.y+12, 20, 6);
+  px(elk.x-camX, elk.y, elk.w, elk.h, "#c68642");
+  px(elk.x-camX+14, elk.y+14, 20, 6, "rgba(0,0,0,.22)");
+  px(elk.x-camX+60, elk.y+6, 10, 10, "#8b5a2b"); // antlers hint
 }
 
-/* ---------- SASQUATCH BOSS ---------- */
-const sassy = {
-  active:false,
-  hp: 5,
-  x: 2150,
-  y: GROUND_Y-140,
-  w: 110,
-  h: 140,
-  vx: -220,
-  vy: 0,
-  onGround:false,
-  jumpT: 0.8
-};
-
-function startBoss(){
-  sassy.active = true;
-  sassy.hp = 5;
-  sassy.x = 2150;
-  sassy.y = GROUND_Y - sassy.h;
-  sassy.vx = -240;
-  sassy.vy = 0;
-  sassy.onGround = true;
-  sassy.jumpT = 0.8;
+/* ---------- Reset logic (big does NOT teleport) ---------- */
+function resetTo76(){
+  tom.x = 90;
+  tom.y = GROUND_Y - tom.h;
+  tom.vx = tom.vy = 0;
+  inBossArena = false;
+  // reset some world stuff lightly
 }
 
-function updateBoss(dt){
-  if(!sassy.active) return;
-
-  // AI: chase Tom + periodic jumps
-  const dir = Math.sign(tom.x - sassy.x) || 1;
-  sassy.vx = dir * 260;
-
-  sassy.jumpT -= dt;
-  if(sassy.jumpT <= 0 && sassy.onGround){
-    sassy.vy = -980;
-    sassy.onGround = false;
-    sassy.jumpT = 0.7 + Math.random()*0.6;
-  }
-
-  sassy.vy += 2200*dt;
-  sassy.x += sassy.vx*dt;
-  sassy.y += sassy.vy*dt;
-
-  // bounds (parking lot arena)
-  sassy.x = Math.max(1940, Math.min(sassy.x, 2350));
-  if(sassy.y >= GROUND_Y - sassy.h){
-    sassy.y = GROUND_Y - sassy.h;
-    sassy.vy = 0;
-    sassy.onGround = true;
-  }
-
-  // collision Tom vs Sassy
-  if(aabb(tom, sassy)){
-    const stomp = tom.vy > 120 && (tom.y + tom.h - sassy.y) < 30;
-    if(stomp){
-      sassy.hp -= 1;
-      tom.vy = -620;
-      if(sassy.hp <= 0){
-        sassy.active = false;
-      }
-    }else{
-      // grab/throw effect: big->small, small->reset
-      if(tom.big){
-        tom.big = false;
-        tom.vy = -520;
-        tom.vx = -dir * 420;
-      }else{
-        resetTo76();
-        inBossArena = false; // walk back again
-      }
-    }
+/* ---------- Enter boss arena at Thriftway zone ---------- */
+function checkBossArenaEntry(){
+  if(inBossArena) return;
+  if(tom.x > 1950){
+    inBossArena = true;
+    // Clear street enemies/tourists
+    for(const e of enemies) e.alive=false;
+    for(const t of tourists) t.alive=false;
   }
 }
+</script>
+<script>
+/* =========================================================
+   SECTION 4 — Enemies, tourists, interactions, crossings, elk
+========================================================= */
 
-function drawBoss(){
-  if(!sassy.active) return;
-  ctx.fillStyle="#3b2f2f";
-  ctx.fillRect(sassy.x-camX, sassy.y, sassy.w, sassy.h);
+/* ---------- Enemies ---------- */
+function makeEnemy(type,x){
+  return {
+    type,
+    x,
+    y: GROUND_Y-76,
+    w: 42,
+    h: 76,
+    vx: type==="werewolf"? 90 : 70,
+    vy: 0,
+    winged: type==="vampire",
+    alive: true,
+  };
+}
+let enemies = [
+  makeEnemy("vampire", 760),
+  makeEnemy("werewolf", 1050),
+  makeEnemy("vampire", 1380),
+  makeEnemy("werewolf", 1620),
+];
 
-  // face
-  ctx.fillStyle="rgba(0,0,0,.25)";
-  ctx.fillRect(sassy.x-camX+25, sassy.y+38, 60, 24);
+/* ---------- Tourists ---------- */
+function makeTourist(x){
+  return {
+    x,
+    y: GROUND_Y-82,
+    w: 38,
+    h: 82,
+    vx: Math.random()<0.5 ? -40 : 40,
+    alive:true,
+    known:false,
+    annoying:null,
+    throwable:false,
+    sliding:false,
+    slideV:0,
+    question:"",
+    smart:false,
+  };
+}
+let tourists = [
+  makeTourist(420),
+  makeTourist(640),
+  makeTourist(980),
+  makeTourist(1280),
+  makeTourist(1540),
+];
 
-  // HP
-  ctx.fillStyle="rgba(255,255,255,.9)";
-  ctx.font="bold 14px system-ui";
-  ctx.textAlign="left";
-  ctx.fillText("SASSY HP: "+sassy.hp, (sassy.x-camX)+6, sassy.y-8);
+/* Tourist text banks */
+const dumbQs = [
+  "“When do the deer turn into elk?”",
+  "“Where can we find Edward?”",
+  "“Is the Cullen house on Airbnb?”",
+  "“Do park rangers herd whales through the Peugeot sound?”",
+  "“Is Jacob available for birthday parties?”",
+  "“Where’s the vampire sparkle viewing area?”"
+];
+
+const directionQs = [
+  { q:"“How do we get to Thriftway?”",
+    correct:"Go down Forks Ave until the big red sign.",
+    wrong:["Ask the nearest werewolf for Yelp directions.",
+           "Follow the whales through Peugeot Sound.",
+           "Wait for Edward to appear and lead you."] },
+  { q:"“Where’s Chinook Pharmacy?”",
+    correct:"Stay on the main drag—keep walking.",
+    wrong:["It’s in the forbidden sparkle zone.",
+           "Turn where the deer become elk.",
+           "Cross into La Push and howl twice."] },
+  { q:"“Where’s the Transit Center?”",
+    correct:"Keep to Forks Ave—watch for the bus stop.",
+    wrong:["Summon a vampire Uber.",
+           "Find a ranger and ask about whale herding.",
+           "Go to the 76 and request a teleport."] },
+];
+
+/* ---------- Interaction mode ---------- */
+let mode = "RUN"; // RUN | TOURIST | STORE | CROSS | WIN | BOSS
+let activeTourist = null;
+let activeStore = null;
+let answerChoices = [];
+let answerIndex = 0;
+let correctIndex = 0;
+
+/* Close interaction */
+function closeInteraction(){
+  mode = "RUN";
+  activeTourist=null;
+  activeStore=null;
+  answerChoices=[];
+  hideBubble();
+  setPaused(false);
 }
 
-/* ---------- THRIFTWAY DOOR WIN ---------- */
-let won = false;
-
-function checkWin(){
-  if(won) return;
-  const thrift = stores.find(s=>s.key==="THRIFT");
-  if(!thrift) return;
-  const d = doorRect(thrift);
-
-  // must defeat boss first
-  if(inBossArena && !sassy.active){
-    if(aabb(tom, d)){
-      won = true;
-      showWinScreen();
-    }
-  }
-}
-
-function showWinScreen(){
+/* Open tourist bubble */
+function openTourist(t){
+  mode="TOURIST";
   setPaused(true);
-  killBubble();
+  activeTourist=t;
+  t.known=true;
 
-  const ov = document.getElementById("pauseOverlay");
-  ov.style.display = "block";
-  ov.innerHTML = `
-    <div style="
-      position:absolute; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      background:rgba(0,0,0,.82); color:white; padding:18px;
-      font-family:system-ui;">
-      <div style="max-width:520px;width:92%;background:#142033;border-radius:18px;padding:18px;">
-        <h2 style="margin:0 0 10px;">HOT CASE SECURED.</h2>
-        <p style="margin:0 0 10px;line-height:1.35;">
-          Tom slides into Thriftway like a local legend and claims the chicken strips and JoJos
-          before the tourists even finish asking where Edward is.
-        </p>
-        <button id="winReset" style="
-          width:100%;padding:14px;border:none;border-radius:14px;
-          background:#2d6cdf;color:white;font-weight:bold;font-size:18px;">
-          Play Again
-        </button>
-      </div>
-    </div>
-  `;
-  document.getElementById("winReset").onclick = ()=>location.reload();
-}
+  if(t.annoying===null){
+    t.annoying = Math.random() < 0.55;
+    t.smart = !t.annoying;
+  }
 
-/* ---------- PATCH UPDATE: add crossing, elk, boss, music ramp, win ---------- */
-const __updateGame = updateGame;
-updateGame = function(dt){
-  updateMusicRamp();
-
-  // if crossing mode, run crossing instead of normal world sim
-  if(crossingMode){
-    updateCrossing(dt);
+  if(t.annoying){
+    t.throwable = true;
+    const q = dumbQs[Math.floor(Math.random()*dumbQs.length)];
+    showBubble(q, "ACTION to continue");
+    answerChoices=[];
     return;
   }
 
-  // trigger crossings as Tom progresses (only on RUN segment, not boss arena)
-  for(let i=0;i<crossings.length;i++){
-    if(!crossings[i].done && tom.x > crossings[i].triggerX && !inBossArena){
-      crossings[i].done = true;
-      startCrossing();
+  // Smart: ask directions; choose with Left/Right; Action confirms
+  const dq = directionQs[Math.floor(Math.random()*directionQs.length)];
+  const choices = [dq.correct, ...dq.wrong];
+  for(let i=choices.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [choices[i],choices[j]]=[choices[j],choices[i]];
+  }
+  answerChoices = choices;
+  answerIndex = 0;
+  correctIndex = choices.indexOf(dq.correct);
+
+  const display = dq.q + "\n\n" + renderChoices();
+  showBubble(display, "←/→ choose  •  ACTION confirm  •  ESC/JUMP close");
+}
+
+function renderChoices(){
+  let s="";
+  for(let i=0;i<answerChoices.length;i++){
+    s += (i===answerIndex ? "▶ " : "  ") + answerChoices[i] + "\n";
+  }
+  return s.trimEnd();
+}
+
+/* Open store menu */
+function openStore(s){
+  mode="STORE";
+  setPaused(true);
+  activeStore=s;
+
+  let text = `🛒 ${s.name}\n`;
+  if(s.key==="SHELL")   text += "1) Buy beer case (+6) — $10\n";
+  if(s.key==="CHINOOK") text += "1) Blister cream — $8\n";
+  if(s.key==="TRUE")    text += "1) Ammo (+3) — $9\n";
+  if(s.key==="SASQ")    text += "1) Earrings (wife) — $12 (+15s)\n";
+  if(s.key==="CARWASH") text += "1) Wash car +$5 (free)\n";
+  if(s.key==="TRANSIT") text += "1) Bus to Thriftway zone — $20\n";
+  if(s.key==="76")      text += "1) Nothing. Just fumes and regret.\n";
+  if(s.key==="THRIFT"){
+    if(!inBossArena) text += "Parking lot ahead…\n";
+    else text += "Door locked until Sassy is defeated.\n";
+  }
+  text += "\nACTION buys option 1.  JUMP closes.";
+  showBubble(text);
+}
+
+/* Apply store purchase */
+function buyStore(){
+  const s=activeStore;
+  if(!s) return;
+
+  if(s.key==="SHELL"){
+    if(cash>=10){ cash-=10; tom.beer+=6; }
+  }
+  if(s.key==="CHINOOK"){
+    if(cash>=8){ cash-=8; /* cream */ }
+  }
+  if(s.key==="TRUE"){
+    if(cash>=9){ cash-=9; /* ammo */ }
+  }
+  if(s.key==="SASQ"){
+    if(cash>=12){ cash-=12; timeLeft += 15; }
+  }
+  if(s.key==="CARWASH"){
+    cash += 5;
+  }
+  if(s.key==="TRANSIT"){
+    if(cash>=20 && !inBossArena){
+      cash -= 20;
+      tom.x = 1880;
+      tom.y = GROUND_Y - tom.h;
+      tom.vx = tom.vy = 0;
+    }
+  }
+}
+
+/* ---------- Throwing tourists (only annoying/throwable) ---------- */
+function throwTourist(t){
+  // straight-line slide along ground
+  t.sliding = true;
+  t.slideV = 620 * tom.facing;
+  tom.carry = null;
+}
+
+/* ---------- Crossings (Frogger mini) ---------- */
+let cross = null;
+function startCrossing(){
+  mode="CROSS";
+  setPaused(false);
+  hideBubble();
+
+  cross = {
+    area: rect(40, 170, 280, 350),
+    frog: rect(40+130, 170+350-34, 22, 22),
+    cars: [],
+    lanes: [
+      { y: 170+80,  dir:  1, spd: 180 },
+      { y: 170+170, dir: -1, spd: 240 },
+      { y: 170+260, dir:  1, spd: 280 },
+    ],
+  };
+}
+
+function updateCross(dt){
+  if(!cross) return;
+
+  // spawn cars
+  for(const ln of cross.lanes){
+    if(Math.random() < 0.02){
+      cross.cars.push({
+        x: ln.dir>0 ? cross.area.x-60 : cross.area.x+cross.area.w+60,
+        y: ln.y,
+        w: 46, h: 18,
+        vx: ln.dir*ln.spd
+      });
+    }
+  }
+
+  // move cars
+  for(let i=cross.cars.length-1;i>=0;i--){
+    cross.cars[i].x += cross.cars[i].vx*dt;
+    if(cross.cars[i].x < cross.area.x-140 || cross.cars[i].x > cross.area.x+cross.area.w+140){
+      cross.cars.splice(i,1);
+    }
+  }
+
+  // left/right continuous
+  if(input.left)  cross.frog.x -= 160*dt;
+  if(input.right) cross.frog.x += 160*dt;
+  cross.frog.x = clamp(cross.frog.x, cross.area.x+6, cross.area.x+cross.area.w-cross.frog.w-6);
+
+  // collisions
+  for(const c of cross.cars){
+    if(aabb(cross.frog, c)){
+      // crossing hit: big->small, small->reset
+      if(tom.big) tom.big=false;
+      else resetTo76();
+      // restart frog/cars
+      cross.frog.x = cross.area.x+130;
+      cross.frog.y = cross.area.y+cross.area.h-34;
+      cross.cars.length = 0;
       break;
     }
   }
 
-  // elk hazard
-  maybeSpawnElk();
-  updateElk(dt);
+  // finish
+  if(cross.frog.y <= cross.area.y+10){
+    mode="RUN";
+    cross=null;
+  }
+}
 
-  // boss arena enter + start boss once
-  if(inBossArena && !sassy.active && !won){
-    // start boss when first entering arena
-    if(!sassy._started){
-      sassy._started = true;
-      startBoss();
+function crossStepUp(){ if(cross){ cross.frog.y = Math.max(cross.area.y+8, cross.frog.y-54); } }
+function crossStepDown(){ if(cross){ cross.frog.y = Math.min(cross.area.y+cross.area.h-34, cross.frog.y+54); } }
+
+function drawCross(){
+  if(!cross) return;
+  // overlay dark
+  px(0,0,canvas.width,canvas.height,"rgba(0,0,0,.55)");
+  px(cross.area.x, cross.area.y, cross.area.w, cross.area.h, "#1b1b1b");
+
+  // lane markers
+  for(const ln of cross.lanes){
+    px(cross.area.x+10, ln.y+9, cross.area.w-20, 2, "rgba(255,255,255,.15)");
+  }
+
+  // cars
+  for(const c of cross.cars){
+    px(c.x, c.y, c.w, c.h, "#facc15");
+    px(c.x+6, c.y+4, 8, 6, "rgba(0,0,0,.2)");
+  }
+
+  // frog (Tom icon)
+  px(cross.frog.x, cross.frog.y, cross.frog.w, cross.frog.h, tom.big ? "#2d6cdf" : "#6aa2ff");
+  ctx.fillStyle="rgba(255,255,255,.9)";
+  ctx.font="bold 14px system-ui";
+  ctx.textAlign="center";
+  ctx.fillText("CROSS THE STREET", canvas.width/2, cross.area.y-12);
+}
+
+/* ---------- Elk hazard ---------- */
+const elk = { active:false, x:0, y:GROUND_Y-54, w:90, h:48, vx:-560 };
+
+function maybeSpawnElk(){
+  if(inBossArena || elk.active) return;
+  if(tom.x > 1200 && Math.random() < 0.012){
+    elk.active=true;
+    elk.x = tom.x + 520;
+  }
+}
+
+function updateElk(dt){
+  if(!elk.active) return;
+  elk.x += elk.vx*dt;
+  if(elk.x < tom.x - 900) elk.active=false;
+
+  const tr = rect(tom.x, tom.y, tom.w, tom.h);
+  const er = rect(elk.x, elk.y, elk.w, elk.h);
+
+  if(aabb(tr, er)){
+    const stomp = tom.vy > 120 && (tom.y+tom.h - elk.y) < 26;
+    if(stomp){
+      elk.active=false;
+      tom.vy = -620;
+    }else{
+      if(tom.big) tom.big=false;
+      else resetTo76();
+      elk.active=false;
     }
-    updateBoss(dt);
   }
+}
 
-  __updateGame(dt);
+function drawElk(){
+  if(!elk.active) return;
+  px(elk.x-camX, elk.y, elk.w, elk.h, "#c68642");
+  px(elk.x-camX+14, elk.y+14, 20, 6, "rgba(0,0,0,.22)");
+  px(elk.x-camX+60, elk.y+6, 10, 10, "#8b5a2b"); // antlers hint
+}
 
-  // Boss arena camera clamp for parking lot feel
-  if(inBossArena){
-    camX = Math.max(1800, Math.min(camX, 2100));
+/* ---------- Reset logic (big does NOT teleport) ---------- */
+function resetTo76(){
+  tom.x = 90;
+  tom.y = GROUND_Y - tom.h;
+  tom.vx = tom.vy = 0;
+  inBossArena = false;
+  // reset some world stuff lightly
+}
+
+/* ---------- Enter boss arena at Thriftway zone ---------- */
+function checkBossArenaEntry(){
+  if(inBossArena) return;
+  if(tom.x > 1950){
+    inBossArena = true;
+    // Clear street enemies/tourists
+    for(const e of enemies) e.alive=false;
+    for(const t of tourists) t.alive=false;
   }
-
-  checkWin();
-};
-
-/* ---------- PATCH DRAW: add crossing overlay, elk, boss, parking lot feel ---------- */
-const __drawGame = drawGame;
-drawGame = function(){
-  __drawGame();
-
-  // elk render
-  drawElk();
-
-  // boss render (only after arena)
-  if(inBossArena){
-    drawBoss();
-    // darker parking lot vibe overlay
-    ctx.fillStyle="rgba(0,0,0,.08)";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-  }
-
-  // crossing overlay last
-  if(crossingMode){
-    drawCrossing();
-  }
-};
+}
 </script>
