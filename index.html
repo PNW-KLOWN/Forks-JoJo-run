@@ -9,21 +9,20 @@
   html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#071021;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
   #wrap{width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
   canvas{width:100vw;max-width:520px;height:100vh;max-height:960px;background:#8fd3ff;border-radius:14px;image-rendering:pixelated;touch-action:none}
-  #hud{position:fixed;top:0;left:0;right:0;padding:8px 10px;background:rgba(0,0,0,.78);color:#fff;display:flex;justify-content:space-between;align-items:center;z-index:50;font-size:14px;box-sizing:border-box;pointer-events:auto}
+  #hud{position:fixed;top:0;left:0;right:0;padding:8px 10px;background:rgba(0,0,0,.78);color:#fff;display:flex;justify-content:space-between;align-items:center;z-index:50;font-size:14px;box-sizing:border-box}
   #hud .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
   #hud button{border:none;border-radius:12px;padding:8px 10px;background:#1f2937;color:#fff;font-weight:900}
-  #controls{position:fixed;left:0;right:0;bottom:10px;display:flex;gap:8px;padding:0 10px;z-index:50;box-sizing:border-box;pointer-events:auto}
+  #controls{position:fixed;left:0;right:0;bottom:10px;display:flex;gap:8px;padding:0 10px;z-index:50;box-sizing:border-box}
   .ctrl{flex:1;border:none;border-radius:16px;padding:14px 10px;font-size:16px;font-weight:950;color:#fff;background:#111827;touch-action:none}
   .ctrl.jump{background:#16a34a}
   .ctrl.action{background:#2563eb}
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999;pointer-events:auto}
-  .panel{width:92%;max-width:560px;background:#0f1e35;color:#fff;border-radius:18px;padding:18px;box-sizing:border-box;pointer-events:auto}
-  .panel *{pointer-events:auto}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:9999}
+  .panel{width:92%;max-width:560px;background:#0f1e35;color:#fff;border-radius:18px;padding:18px;box-sizing:border-box}
   .panel h1{margin:0 0 10px;font-size:26px}
   .panel p{margin:8px 0;line-height:1.35}
   .panel .btn{width:100%;margin-top:12px;border:none;border-radius:16px;padding:14px;font-size:18px;font-weight:950;background:#2563eb;color:#fff}
   .panel .btn.secondary{background:#1f2937}
-  #bubble{position:fixed;left:50%;transform:translateX(-50%);bottom:118px;width:min(520px,92vw);background:#fff;color:#0b1220;border-radius:16px;padding:12px 12px;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:60;display:none;white-space:pre-line;box-sizing:border-box;pointer-events:none}
+  #bubble{position:fixed;left:50%;transform:translateX(-50%);bottom:118px;width:min(520px,92vw);background:#fff;color:#0b1220;border-radius:16px;padding:12px;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:60;display:none;white-space:pre-line;box-sizing:border-box;pointer-events:none}
 </style>
 </head>
 
@@ -44,7 +43,7 @@
 <div id="wrap"><canvas id="game" width="360" height="640"></canvas></div>
 
 <div id="controls">
-  <button class="ctrl" id="btnLeft"  type="button">⬅</button>
+  <button class="ctrl" id="btnLeft" type="button">⬅</button>
   <button class="ctrl jump" id="btnJump" type="button">JUMP</button>
   <button class="ctrl" id="btnRight" type="button">➡</button>
   <button class="ctrl action" id="btnAction" type="button">ACTION</button>
@@ -69,16 +68,18 @@
     <h1>Controls / Goal</h1>
     <p><b>Mobile:</b> Use on-screen buttons.</p>
     <p><b>Keyboard:</b> A/D or ←/→ move, W/↑ jump, Space/Enter = ACTION, Esc closes dialogs.</p>
-    <p><b>One ACTION button:</b> Drink • Talk • Grab • Throw • Door • Shoot (shooting is last priority).</p>
+    <p><b>One ACTION button priority:</b> 1) Drink beer (if small) • 2) Talk/Grab tourist • 3) Throw • 4) Door • 5) Shoot</p>
     <p><b>Goal:</b> Reach Thriftway, defeat <b>Sassy</b> in the parking lot, then enter the door to win.</p>
     <button class="btn" id="backBtn" type="button">BACK</button>
   </div>
 </div>
 
 <script>
+/* ---------- Safety (stop browser text popups) ---------- */
 document.addEventListener("contextmenu", e=>e.preventDefault());
 document.addEventListener("selectstart", e=>e.preventDefault());
 
+/* ---------- Canvas ---------- */
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -92,6 +93,7 @@ const bubble = document.getElementById("bubble");
 function showBubble(text){ bubble.style.display="block"; bubble.textContent=text; }
 function hideBubble(){ bubble.style.display="none"; bubble.textContent=""; }
 
+/* ---------- Game state ---------- */
 let running=false, paused=false, won=false;
 function setPaused(v){ paused=v; }
 
@@ -157,7 +159,7 @@ window.addEventListener("keyup",(e)=>{
   if(k===" "||k==="Enter") input.action=false;
 });
 
-/* ---------- UI ---------- */
+/* ---------- UI buttons ---------- */
 window.addEventListener("DOMContentLoaded", ()=>{
   document.getElementById("btnReset").addEventListener("click", ()=>location.reload());
   document.getElementById("startBtn").addEventListener("click", ()=>{
@@ -180,7 +182,7 @@ function aabb(a,b){ return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>
 function px(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(x,y,w,h); }
 function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
 
-/* ---------- World/state ---------- */
+/* ---------- World ---------- */
 const W=canvas.width, H=canvas.height;
 const GROUND_Y=560, GRAVITY=2200;
 const BUILD_Y=GROUND_Y-210, BUILD_H=190;
@@ -188,7 +190,7 @@ const BUILD_Y=GROUND_Y-210, BUILD_H=190;
 let timeLeft=160, cash=0, camX=0, inBossArena=false;
 function sx(worldX){ return worldX - camX; }
 
-/* ---------- Stores ---------- */
+/* ---------- Stores (Forks Ave strip) ---------- */
 const stores=[
   { key:"76",     name:"Evergreen 76",   x:  40, w:220, color:"#9b1c1c", door:{dx:95,w:34} },
   { key:"SHELL",  name:"Shell",          x: 330, w:220, color:"#d4a300", door:{dx:92,w:34} },
@@ -202,7 +204,7 @@ const stores=[
 let WORLD_W = stores.reduce((m,s)=>Math.max(m,s.x+s.w),0)+260;
 function doorRect(s){ return rect(s.x+s.door.dx, GROUND_Y-84, s.door.w, 84); }
 
-/* ---------- Player ---------- */
+/* ---------- Player (Tom) ---------- */
 const TOM_BIG  = { w:44, h:96 };
 const TOM_SMALL= { w:38, h:72 };
 const TOM_JUMP_VY = -1040;
@@ -216,7 +218,6 @@ const tom={
   facing:1,carry:null,
   hurt:0, fireCD:0
 };
-
 function setTomSize(isBig){
   const footY = tom.y + tom.h;
   tom.big=isBig;
@@ -225,33 +226,31 @@ function setTomSize(isBig){
   tom.y = footY - tom.h;
 }
 
-/* ---------- NPC / enemies ---------- */
+/* ---------- NPCs / Enemies ---------- */
 function makeTourist(x){
   return {
     x,y:GROUND_Y-82,w:38,h:82,
-    vx:(Math.random()<0.5?-40:40),
-    alive:true,
-    known:false,
-    annoying:null,
-    smart:false,
+    vx:(Math.random()<0.5?-55:55),
+    alive:true, known:false,
+    annoying:null, smart:false,
     throwable:false,
-    sliding:false,slideV:0,
-    tipped:false,
-    leaving:false
+    sliding:false, slideV:0,
+    tipped:false, leaving:false
   };
 }
 let tourists=[makeTourist(420),makeTourist(680),makeTourist(980),makeTourist(1320),makeTourist(1600)];
 
 function makeEnemy(type,x){
-  return {type,x,y:GROUND_Y-76,w:42,h:76,vx:(type==="werewolf"?95:75),vy:0,winged:(type==="vampire"),alive:true};
+  return {type,x,y:GROUND_Y-76,w:42,h:76,vx:(type==="werewolf"?105:85),vy:0,winged:(type==="vampire"),alive:true};
 }
 let enemies=[makeEnemy("vampire",760),makeEnemy("werewolf",1050),makeEnemy("vampire",1380),makeEnemy("werewolf",1620)];
 
 const elk={active:false,x:0,y:GROUND_Y-54,w:90,h:48,vx:-560};
 
-const SASSY_W=86, SASSY_H=112, SASSY_JUMP_VY=-760, SASSY_SPEED=260;
+const SASSY_W=86, SASSY_H=112, SASSY_JUMP_VY=-760, SASSY_SPEED=240;
 const sassy={active:false,started:false,hp:6,x:2140,y:GROUND_Y-SASSY_H,w:SASSY_W,h:SASSY_H,vx:0,vy:0,onGround:false,jumpT:1.1,hitCD:0};
 
+/* ---------- Hazards (time drains / carts) ---------- */
 const hazards=[{x:520,w:52,type:"pothole"},{x:1120,w:70,type:"puddle"},{x:1460,w:60,type:"cart"}];
 let hazardCooldown=0;
 
@@ -276,12 +275,12 @@ const directionQs=[
   {q:"“Where’s Chinook Pharmacy?”",correct:"Stay on the main strip—keep walking.",wrong:["Turn where the deer become elk.","Cross into La Push and howl twice.","It’s behind the sparkle treaty line."]},
   {q:"“Where’s the Transit Center?”",correct:"Keep to Forks Ave—watch for the bus stop.",wrong:["Summon a werewolf rideshare.","Ask Sassy. He runs dispatch.","Go back to the 76 and request a teleport."]},
 ];
+
 function renderChoices(){
   let out="";
   for(let i=0;i<answerChoices.length;i++) out += (i===answerIndex?"▶ ":"  ")+answerChoices[i]+"\n";
   return out.trimEnd();
 }
-
 function renderChoiceBubble(question){
   showBubble(
     question + "\n\n" +
@@ -290,7 +289,7 @@ function renderChoiceBubble(question){
   );
 }
 
-/* ---------- Drawing ---------- */
+/* ---------- Drawing (detailed pixel-ish sprites) ---------- */
 function drawStores(){
   for(const s of stores){
     const x=sx(s.x);
@@ -306,34 +305,27 @@ function drawStores(){
     px(sx(d.x)+4, d.y+14, d.w-8, 18, "rgba(255,255,255,.25)");
   }
 }
-
 function drawTom(){
   const x=sx(tom.x), y=tom.y;
   if(tom.hurt>0 && (Math.floor(tom.hurt*10)%2===0)) return;
   px(x+8, y+tom.h-4, 28, 6, "rgba(0,0,0,.25)");
-  px(x+8, y+6, 28, 10, "#ffcc00");
+  px(x+8, y+6, 28, 10, "#ffcc00");        // helmet
   px(x+6, y+14, 32, 6, "#eab308");
-  px(x+12, y+20, 20, 18, "#f2c9a0");
-  px(x+12, y+34, 20, 8, "#2b2b2b");
+  px(x+12, y+20, 20, 18, "#f2c9a0");       // face
+  px(x+12, y+34, 20, 8, "#2b2b2b");        // beard
   px(x+16, y+26, 4, 4, "#111827");
   px(x+24, y+26, 4, 4, "#111827");
-  px(x+10, y+40, 24, 28, "#b22222");
-  px(x+10, y+46, 24, 4, "#1e3a8a");
-  px(x+10, y+54, 24, 4, "#1e3a8a");
-  px(x+10, y+62, 24, 3, "#1e3a8a");
+  px(x+10, y+40, 24, 28, "#b22222");       // shirt
   px(x+4,  y+44, 6, 22, "#b22222");
   px(x+34, y+44, 6, 22, "#b22222");
-  px(x+4,  y+66, 6, 6, "#f2c9a0");
-  px(x+34, y+66, 6, 6, "#f2c9a0");
-  px(x+12, y+68, 10, 18, "#1f2937");
+  px(x+12, y+68, 10, 18, "#1f2937");       // pants
   px(x+22, y+68, 10, 18, "#1f2937");
-  px(x+10, y+86, 12, 8, "#111827");
+  px(x+10, y+86, 12, 8, "#111827");        // boots
   px(x+22, y+86, 12, 8, "#111827");
-  px(x+12, y+94, 8, 2, "#9ca3af");
+  px(x+12, y+94, 8, 2, "#9ca3af");         // caulks
   px(x+24, y+94, 8, 2, "#9ca3af");
   if(!tom.big) px(x+10, y+40, 24, 6, "rgba(255,255,255,.18)");
 }
-
 function drawTourist(t){
   const x=sx(t.x), y=t.y;
   px(x+8,y+10,26,8, t.annoying ? "#ff7a18" : "#16a34a");
@@ -341,14 +333,11 @@ function drawTourist(t){
   px(x+16,y+24,3,3,"#111827");
   px(x+23,y+24,3,3,"#111827");
   px(x+10,y+34,22,24,"#64748b");
-  px(x+14,y+40,14,8,"#111827");
-  px(x+4,y+40,8,12,"#94a3b8");
   px(x+12,y+58,9,18,"#0f172a");
   px(x+21,y+58,9,18,"#0f172a");
   px(x+12,y+76,9,6,"#111827");
   px(x+21,y+76,9,6,"#111827");
 }
-
 function drawWerewolf(e){
   const x=sx(e.x), y=e.y;
   px(x+6,y+14,32,38,"#6b4a2e");
@@ -358,10 +347,7 @@ function drawWerewolf(e){
   px(x+20,y+28,3,3,"#111827");
   px(x+10,y+52,12,18,"#111827");
   px(x+22,y+52,12,18,"#111827");
-  px(x+8,y+70,14,6,"#111827");
-  px(x+22,y+70,14,6,"#111827");
 }
-
 function drawVampire(e){
   const x=sx(e.x), y=e.y;
   if(e.winged){
@@ -375,18 +361,13 @@ function drawVampire(e){
   px(x+20,y+32,4,3,"#7c2d12");
   px(x+12,y+54,10,16,"#111827");
   px(x+22,y+54,10,16,"#111827");
-  px(x+10,y+70,12,6,"#111827");
-  px(x+22,y+70,12,6,"#111827");
 }
-
 function drawElk(){
   if(!elk.active) return;
   const x=sx(elk.x), y=elk.y;
   px(x, y, elk.w, elk.h, "#c68642");
-  px(x+14, y+14, 20, 6, "rgba(0,0,0,.22)");
   px(x+60, y+6, 10, 10, "#8b5a2b");
 }
-
 function drawSassy(){
   if(!sassy.active) return;
   const x=sx(sassy.x), y=sassy.y;
@@ -394,15 +375,11 @@ function drawSassy(){
   px(x+18,y+24, sassy.w-36, 28, "#2b1f1f");
   px(x+26,y+34,8,8,"#111827");
   px(x+sassy.w-34,y+34,8,8,"#111827");
-  px(x+24,y+56, sassy.w-48, 8, "#111827");
-  px(x-8, y+34, 18, 42, "#3b2f2f");
-  px(x+sassy.w-10, y+34, 18, 42, "#3b2f2f");
   ctx.fillStyle="rgba(255,255,255,.92)";
   ctx.font="bold 14px system-ui";
   ctx.textAlign="left";
   ctx.fillText("SASSY HP: "+sassy.hp, x, y-8);
 }
-
 function drawBullets(){
   for(const b of bullets){
     px(sx(b.x), b.y, b.w, b.h, "#111827");
@@ -410,11 +387,10 @@ function drawBullets(){
   }
 }
 
-/* ===== HALF 2 continues from here ===== */
-</script>
+/* ===== HALF 2 CONTINUES BELOW ===== */
 <script>
-/* ================================
-   GAME LOGIC — HALF 2 / 2
+/* ===============================
+   GAMEPLAY LOGIC — HALF 2 / 2
 ================================ */
 
 /* ---------- Collision helpers ---------- */
@@ -427,26 +403,26 @@ function stompFromAbove(trNow, trPrev, er){
   const slack = 16;
 
   const cameFromAbove = prevBottom <= er.y + slack;
-  const cx = trNow.x + trNow.w/2;
-  const inX = cx >= er.x-12 && cx <= er.x+er.w+12;
-  const inY = nowBottom >= er.y && nowBottom <= er.y + er.h*0.9;
+  const cx = trNow.x + trNow.w * 0.5;
+  const inX = cx >= er.x - 12 && cx <= er.x + er.w + 12;
+  const inY = nowBottom >= er.y && nowBottom <= er.y + er.h * 0.9;
 
   return falling && cameFromAbove && inX && inY;
 }
 
-/* ---------- Core interactions ---------- */
+/* ---------- Interaction cleanup ---------- */
 function closeInteraction(){
-  mode="RUN";
-  activeTourist=null;
-  activeStore=null;
-  answerChoices=[];
+  mode = "RUN";
+  activeTourist = null;
+  activeStore = null;
+  answerChoices = [];
   hideBubble();
   setPaused(false);
 }
 
 /* ---------- Stores ---------- */
 function storeAtDoor(){
-  const tr=rect(tom.x,tom.y,tom.w,tom.h);
+  const tr = rect(tom.x, tom.y, tom.w, tom.h);
   for(const s of stores){
     if(aabb(tr, doorRect(s))) return s;
   }
@@ -454,37 +430,38 @@ function storeAtDoor(){
 }
 
 function openStore(s){
-  mode="STORE";
+  mode = "STORE";
   setPaused(true);
-  activeStore=s;
-  let t=`🏪 ${s.name}\n`;
+  activeStore = s;
 
-  if(s.key==="SHELL") t+="Buy beer (+6) $10\n";
-  if(s.key==="CHINOOK") t+="Blister cream $8\n";
-  if(s.key==="TRUE") t+="Ammo (+6) $9\n";
-  if(s.key==="CARWASH") t+="Wash car (+$5)\n";
-  if(s.key==="TRANSIT") t+="Bus closer ($20)\n";
-  if(s.key==="SASQ") t+="Earrings (+15s) $12\n";
+  let txt = `🏪 ${s.name}\n`;
+  if(s.key==="SHELL")   txt+="Buy beer (+6) $10\n";
+  if(s.key==="CHINOOK") txt+="Blister cream $8\n";
+  if(s.key==="TRUE")    txt+="Ammo (+6) $9\n";
+  if(s.key==="CARWASH") txt+="Wash car (+$5)\n";
+  if(s.key==="TRANSIT") txt+="Bus closer ($20)\n";
+  if(s.key==="SASQ")    txt+="Earrings (+15s) $12\n";
   if(s.key==="THRIFT"){
-    t += sassy.active ? "Sassy blocks the door." : "Door unlocked.";
+    txt += sassy.active ? "Sassy blocks the door." : "Door unlocked.";
   }
-
-  t+="\nACTION buys • JUMP closes";
-  showBubble(t);
+  txt+="\nACTION buys • JUMP closes";
+  showBubble(txt);
 }
 
 function buyStore(){
-  const s=activeStore;
+  const s = activeStore;
   if(!s) return;
-  if(s.key==="SHELL" && cash>=10){cash-=10; tom.beer+=6;}
-  if(s.key==="CHINOOK" && cash>=8){cash-=8;}
-  if(s.key==="TRUE" && cash>=9){cash-=9; tom.ammo+=6;}
-  if(s.key==="CARWASH"){cash+=5;}
+
+  if(s.key==="SHELL" && cash>=10){ cash-=10; tom.beer+=6; }
+  if(s.key==="CHINOOK" && cash>=8){ cash-=8; }
+  if(s.key==="TRUE" && cash>=9){ cash-=9; tom.ammo+=6; }
+  if(s.key==="CARWASH"){ cash+=5; }
   if(s.key==="TRANSIT" && cash>=20 && !inBossArena){
     cash-=20;
-    tom.x=1850;
+    tom.x = 1850;
   }
-  if(s.key==="SASQ" && cash>=12){cash-=12; timeLeft+=15;}
+  if(s.key==="SASQ" && cash>=12){ cash-=12; timeLeft+=15; }
+
   sfxCoin();
 }
 
@@ -507,29 +484,30 @@ function openTourist(t){
     return;
   }
 
-  const dq=directionQs[(Math.random()*directionQs.length)|0];
-  answerChoices=shuffle([dq.correct,...dq.wrong]);
-  correctIndex=answerChoices.indexOf(dq.correct);
-  answerIndex=0;
+  const dq = directionQs[(Math.random()*directionQs.length)|0];
+  answerChoices = shuffle([dq.correct, ...dq.wrong]);
+  correctIndex = answerChoices.indexOf(dq.correct);
+  answerIndex = 0;
   renderChoiceBubble(dq.q);
 }
 
 function throwTourist(t){
-  t.sliding=true;
-  t.slideV=720*tom.facing;
-  tom.carry=null;
+  t.sliding = true;
+  t.slideV = 720 * tom.facing;
+  tom.carry = null;
   sfxThrow();
 }
 
 /* ---------- Damage ---------- */
 function hitTom(dir=1){
   if(tom.hurt>0) return;
-  tom.hurt=0.9;
+  tom.hurt = 0.9;
   sfxHit();
+
   if(tom.big){
     setTomSize(false);
-    tom.vy=-540;
-    tom.vx=520*dir;
+    tom.vy = -540;
+    tom.vx = 520 * dir;
   }else{
     respawnAt76();
   }
@@ -537,27 +515,30 @@ function hitTom(dir=1){
 
 /* ---------- Respawn ---------- */
 function respawnAt76(){
-  tom.x=90;
-  tom.y=GROUND_Y-tom.h;
-  tom.prevX=tom.x;
-  tom.prevY=tom.y;
-  tom.vx=tom.vy=0;
-  tom.hurt=0.9;
-  inBossArena=false;
-  sassy.active=false;
-  sassy.started=false;
-  sassy.hp=6;
+  tom.x = 90;
+  tom.y = GROUND_Y - tom.h;
+  tom.prevX = tom.x;
+  tom.prevY = tom.y;
+  tom.vx = tom.vy = 0;
+  tom.hurt = 0.9;
+
+  inBossArena = false;
+  sassy.active = false;
+  sassy.started = false;
+  sassy.hp = 6;
 }
 
 /* ---------- Shooting ---------- */
 function spawnBullet(){
   if(tom.fireCD>0 || tom.ammo<=0) return false;
-  tom.fireCD=0.18;
+  tom.fireCD = 0.18;
   tom.ammo--;
   bullets.push({
-    x:tom.facing>0?tom.x+tom.w+2:tom.x-10,
-    y:tom.y+tom.h/2,
-    w:10,h:4,vx:900*tom.facing,life:.6
+    x: tom.facing>0 ? tom.x+tom.w+2 : tom.x-10,
+    y: tom.y + tom.h/2,
+    w: 10, h: 4,
+    vx: 900 * tom.facing,
+    life: 0.6
   });
   sfxShoot();
   return true;
@@ -565,12 +546,13 @@ function spawnBullet(){
 
 function updateBullets(dt){
   for(const b of bullets){
-    b.x+=b.vx*dt;
-    b.life-=dt;
+    b.x += b.vx * dt;
+    b.life -= dt;
     if(b.life<=0) b.dead=true;
+
     if(!inBossArena){
       for(const e of enemies){
-        if(e.alive && aabb(rect(b.x,b.y,b.w,b.h),rect(e.x,e.y,e.w,e.h))){
+        if(e.alive && aabb(rect(b.x,b.y,b.w,b.h), rect(e.x,e.y,e.w,e.h))){
           e.alive=false;
           b.dead=true;
           sfxStomp();
@@ -578,54 +560,68 @@ function updateBullets(dt){
       }
     }
   }
-  for(let i=bullets.length-1;i>=0;i--) if(bullets[i].dead) bullets.splice(i,1);
+  for(let i=bullets.length-1;i>=0;i--){
+    if(bullets[i].dead) bullets.splice(i,1);
+  }
 }
 
 /* ---------- Updates ---------- */
 function updateTom(dt){
-  tom.prevX=tom.x;
-  tom.prevY=tom.y;
-  tom.hurt=Math.max(0,tom.hurt-dt);
-  tom.fireCD=Math.max(0,tom.fireCD-dt);
+  tom.prevX = tom.x;
+  tom.prevY = tom.y;
 
-  tom.vx=0;
-  if(input.left){tom.vx=-260; tom.facing=-1;}
-  if(input.right){tom.vx=260; tom.facing=1;}
+  tom.hurt = Math.max(0, tom.hurt - dt);
+  tom.fireCD = Math.max(0, tom.fireCD - dt);
 
-  tom.vy+=GRAVITY*dt;
-  tom.x+=tom.vx*dt;
-  tom.y+=tom.vy*dt;
+  tom.vx = 0;
+  if(input.left){ tom.vx=-260; tom.facing=-1; }
+  if(input.right){ tom.vx=260; tom.facing=1; }
 
-  if(tom.y>=GROUND_Y-tom.h){
-    tom.y=GROUND_Y-tom.h;
-    tom.vy=0;
-    tom.onGround=true;
-  }else tom.onGround=false;
+  tom.vy += GRAVITY * dt;
+  tom.x  += tom.vx * dt;
+  tom.y  += tom.vy * dt;
 
-  tom.x=clamp(tom.x,0,WORLD_W-tom.w);
+  if(tom.y >= GROUND_Y - tom.h){
+    tom.y = GROUND_Y - tom.h;
+    tom.vy = 0;
+    tom.onGround = true;
+  }else{
+    tom.onGround = false;
+  }
+
+  tom.x = clamp(tom.x, 0, WORLD_W - tom.w);
 }
 
 function updateEnemies(dt){
-  const trNow=rect(tom.x,tom.y,tom.w,tom.h);
-  const trPrev=rect(tom.prevX,tom.prevY,tom.w,tom.h);
+  const trNow  = rect(tom.x,tom.y,tom.w,tom.h);
+  const trPrev = rect(tom.prevX,tom.prevY,tom.w,tom.h);
 
   for(const e of enemies){
     if(!e.alive) continue;
-    e.vy+=GRAVITY*dt;
-    e.x+=e.vx*dt;
-    e.y+=e.vy*dt;
 
-    if(e.y>=GROUND_Y-e.h){e.y=GROUND_Y-e.h;e.vy=0;}
-    const er=rect(e.x,e.y,e.w,e.h);
+    e.vy += GRAVITY * dt;
+    e.x  += e.vx * dt;
+    e.y  += e.vy * dt;
 
-    if(aabb(trNow,er)){
+    if(e.y >= GROUND_Y - e.h){
+      e.y = GROUND_Y - e.h;
+      e.vy = 0;
+    }
+
+    const er = rect(e.x,e.y,e.w,e.h);
+    if(aabb(trNow, er)){
       if(stompFromAbove(trNow,trPrev,er)){
-        if(e.type==="vampire" && e.winged) e.winged=false;
-        else e.alive=false;
-        tom.vy=-820;
-        tom.hurt=Math.max(tom.hurt,0.12);
+        if(e.type==="vampire" && e.winged){
+          e.winged=false;
+        }else{
+          e.alive=false;
+        }
+        tom.vy = -820;
+        tom.hurt = Math.max(tom.hurt,0.15);
         sfxStomp();
-      }else hitTom(Math.sign(tom.x-e.x));
+      }else{
+        hitTom(Math.sign(tom.x-e.x)||1);
+      }
     }
   }
 }
@@ -633,88 +629,120 @@ function updateEnemies(dt){
 function updateTourists(dt){
   for(const t of tourists){
     if(!t.alive) continue;
+
     if(tom.carry===t){
-      t.x=tom.x+(tom.facing>0?20:-20);
-      t.y=tom.y+12;
+      t.x = tom.x + (tom.facing>0?20:-20);
+      t.y = tom.y + 12;
       continue;
     }
+
     if(t.sliding){
-      t.x+=t.slideV*dt;
-      if(Math.abs(t.x-tom.x)>900) t.alive=false;
+      t.x += t.slideV * dt;
+      if(Math.abs(t.x - tom.x) > 900) t.alive=false;
       continue;
     }
+
     if(t.leaving){
-      t.x+=t.vx*dt;
-      if(t.x<-100||t.x>WORLD_W+100) t.alive=false;
+      t.x += t.vx * dt;
+      if(t.x<-100 || t.x>WORLD_W+100) t.alive=false;
       continue;
     }
-    t.x+=t.vx*dt;
+
+    t.x += t.vx * dt;
   }
 }
 
 /* ---------- Boss ---------- */
 function startBoss(){
-  sassy.active=true;
-  sassy.started=true;
-  sassy.hp=6;
+  sassy.active = true;
+  sassy.started = true;
+  sassy.hp = 6;
 }
 
 function updateBoss(dt){
   if(!sassy.active) return;
 
-  sassy.hitCD=Math.max(0,sassy.hitCD-dt);
-  const dir=Math.sign(tom.x-sassy.x)||1;
-  sassy.vx=dir*240;
+  sassy.hitCD = Math.max(0, sassy.hitCD - dt);
+  const dir = Math.sign(tom.x - sassy.x) || 1;
 
-  sassy.vy+=GRAVITY*dt;
-  sassy.x+=sassy.vx*dt;
-  sassy.y+=sassy.vy*dt;
+  sassy.vx = dir * SASSY_SPEED;
+  sassy.vy += GRAVITY * dt;
+  sassy.x  += sassy.vx * dt;
+  sassy.y  += sassy.vy * dt;
 
-  if(sassy.y>=GROUND_Y-sassy.h){
-    sassy.y=GROUND_Y-sassy.h;
-    sassy.vy=0;
+  if(sassy.y >= GROUND_Y - sassy.h){
+    sassy.y = GROUND_Y - sassy.h;
+    sassy.vy = 0;
   }
 
-  const trNow=rect(tom.x,tom.y,tom.w,tom.h);
-  const trPrev=rect(tom.prevX,tom.prevY,tom.w,tom.h);
-  const br=rect(sassy.x,sassy.y,sassy.w,sassy.h);
+  const trNow  = rect(tom.x,tom.y,tom.w,tom.h);
+  const trPrev = rect(tom.prevX,tom.prevY,tom.w,tom.h);
+  const br     = rect(sassy.x,sassy.y,sassy.w,sassy.h);
 
-  if(aabb(trNow,br)){
-    if(stompFromAbove(trNow,trPrev,br)&&sassy.hitCD<=0){
+  if(aabb(trNow, br)){
+    if(stompFromAbove(trNow,trPrev,br) && sassy.hitCD<=0){
       sassy.hp--;
-      sassy.hitCD=0.25;
-      tom.vy=-1000;
+      sassy.hitCD = 0.25;
+      tom.vy = -1000;
       sfxStomp();
       if(sassy.hp<=0) sassy.active=false;
-    }else hitTom(dir);
+    }else{
+      hitTom(dir);
+    }
   }
+}
+
+/* ---------- World drawing ---------- */
+function drawWorld(){
+  px(0,0,W,H,"#8fd3ff");
+  px(0,120,W,70,"#1f7a3a");
+  px(0,150,W,50,"#14532d");
+  px(0,GROUND_Y,W,80,"#2f7d2a");
+
+  drawStores();
+
+  if(!inBossArena){
+    for(const e of enemies) if(e.alive) (e.type==="werewolf"?drawWerewolf(e):drawVampire(e));
+    for(const t of tourists) if(t.alive) drawTourist(t);
+  }else{
+    drawSassy();
+  }
+
+  drawBullets();
+  drawTom();
 }
 
 /* ---------- ACTION PRIORITY ---------- */
 function doAction(){
-  // PRIORITY 1: drink beer
+  // 1) drink beer
   if(!tom.big && tom.beer>0){
-    tom.beer--; setTomSize(true); sfxCoin(); return;
+    tom.beer--;
+    setTomSize(true);
+    sfxCoin();
+    return;
   }
 
-  // PRIORITY 2: tourist interaction
+  // 2) tourist interaction
   for(const t of tourists){
     if(!t.alive||t.tipped||t.leaving) continue;
     if(aabb(rect(tom.x,tom.y,tom.w,tom.h),rect(t.x,t.y,t.w,t.h))){
-      if(!t.known){openTourist(t);return;}
-      if(t.throwable){tom.carry=t;return;}
-      openTourist(t);return;
+      if(!t.known){ openTourist(t); return; }
+      if(t.throwable){ tom.carry=t; return; }
+      openTourist(t); return;
     }
   }
 
-  // PRIORITY 3: throw
-  if(tom.carry){throwTourist(tom.carry);return;}
+  // 3) throw
+  if(tom.carry){
+    throwTourist(tom.carry);
+    return;
+  }
 
-  // PRIORITY 4: door
-  const s=storeAtDoor();
-  if(s){openStore(s);return;}
+  // 4) door
+  const s = storeAtDoor();
+  if(s){ openStore(s); return; }
 
-  // PRIORITY 5: shoot
+  // 5) shoot
   spawnBullet();
 }
 
@@ -727,15 +755,27 @@ function loop(now){
   if(running){
     if(!paused){
       timeLeft=Math.max(0,timeLeft-dt);
-      if(input.jump&&tom.onGround){tom.vy=TOM_JUMP_VY;sfxJump();}
+      if(input.jump && tom.onGround){
+        tom.vy=TOM_JUMP_VY;
+        sfxJump();
+      }
       updateTom(dt);
-      camX=clamp(tom.x-170,0,WORLD_W-W);
+      camX = clamp(tom.x-170, 0, WORLD_W-W);
       updateBullets(dt);
       updateEnemies(dt);
       updateTourists(dt);
-      if(inBossArena){updateBoss(dt);} 
-      if(timeLeft<=0){paused=true;showBubble("Time’s up!");}
+
+      if(inBossArena){
+        if(!sassy.started) startBoss();
+        updateBoss(dt);
+      }
+
+      if(timeLeft<=0){
+        paused=true;
+        showBubble("Time’s up!");
+      }
     }
+
     if(input.action) doAction();
   }
 
@@ -749,5 +789,6 @@ function loop(now){
 }
 requestAnimationFrame(loop);
 </script>
+
 </body>
 </html>
