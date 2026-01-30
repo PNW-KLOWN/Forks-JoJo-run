@@ -211,20 +211,6 @@
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-// ---- ON-SCREEN ERROR REPORTER (mobile friendly) ----
-window.onerror = function(message, source, lineno, colno, error){
-  try{
-    const msg =
-      "JS ERROR:\n" +
-      String(message) + "\n" +
-      "Line: " + lineno + " Col: " + colno;
-    // Show as bubble + pause so it doesn't disappear
-    showBubble(msg, "Fix the error above, then refresh.");
-    setPaused(true);
-    mode = "STORE";
-  }catch(e){}
-  return false;
-};
 
 const hudBeer = document.getElementById("hudBeer");
 const hudCash = document.getElementById("hudCash");
