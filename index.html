@@ -238,22 +238,7 @@ document.getElementById("backBtn").onclick = ()=>{
   document.getElementById("howScreen").style.display="none";
 };
 
-/* ---- BASIC DRAW LOOP (placeholder) ---- */
-function loop(){
-  ctx.fillStyle="#8fd3ff";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  ctx.fillStyle="#1f7a3a";
-  ctx.fillRect(0,400,canvas.width,240);
-
-  ctx.fillStyle="#000";
-  ctx.font="16px system-ui";
-  ctx.textAlign="center";
-  ctx.fillText(running ? "GAME RUNNING" : "TITLE SCREEN", canvas.width/2, 320);
-
-  requestAnimationFrame(loop);
-}
-loop();
 </script>
 <script>
 /* =========================================================
