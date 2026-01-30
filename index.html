@@ -357,6 +357,7 @@ const tom = {
   beer:6,
   facing:1,
   carry:null
+ hurt:0
 };
 
 /* Tourists */
@@ -482,6 +483,8 @@ function drawStores(){
 }
 
 function drawTom(x,y){
+ if(tom.hurt > 0 && Math.floor(tom.hurt*10)%2===0) return;
+
   // logger: hardhat, beard, flannel, caulks
   px(x+8, y+92, 28, 6, "rgba(0,0,0,.25)");
   px(x+8, y+6, 28, 10, "#ffcc00");
@@ -717,7 +720,10 @@ function stompOn(targetY){
 }
 
 function hitTom(knockDir=0){
-  sfxHit();
+ if(tom.hurt > 0) return;
+tom.hurt = 0.8; // ~0.8 seconds invincible
+
+ sfxHit();
   if(tom.big){
     tom.big = false;           // big -> small (NO reset)
     tom.vy = -520;
@@ -760,6 +766,8 @@ function resetTo76(){
 
 /* ---------- Obstacles (replace Frogger): potholes / puddles / cart ---------- */
 const hazards = [
+ let hazardCooldown = 0;
+
   { x: 520,  w: 52,  type:"pothole" },
   { x: 1120, w: 70,  type:"puddle" },
   { x: 1460, w: 60,  type:"cart"   },
@@ -789,17 +797,21 @@ function drawHazards(){
   ctx.restore();
 }
 function updateHazards(){
+  if(hazardCooldown > 0) return;
+
   const tr = rect(tom.x,tom.y,tom.w,tom.h);
   for(const hz of hazards){
     const hr = hazardRect(hz);
     if(aabb(tr,hr) && tom.onGround){
-      // You hit it while walking: small penalty
+      hazardCooldown = 0.9; // can only trigger about once per second
       timeLeft = Math.max(0, timeLeft - 4);
       tom.vx *= 0.2;
-      if(hz.type==="cart") hitTom( tom.facing ); // cart can smack you
+      if(hz.type==="cart") hitTom(tom.facing);
+      return;
     }
   }
 }
+
 
 /* ---------- Elk hazard ---------- */
 function maybeSpawnElk(){
@@ -904,7 +916,7 @@ function updateBoss(dt){
 /* ---------- Movement / physics ---------- */
 function updateTom(dt){
   const speed = 250;
-
+tom.hurt = Math.max(0, tom.hurt - dt);
   // action tap is handled elsewhere; only movement here
   tom.vx = 0;
   if(input.left){ tom.vx = -speed; tom.facing = -1; }
@@ -1094,6 +1106,8 @@ function doAction(){
 /* While paused in tourist question: LEFT/RIGHT selects */
 function answerNav(dir){
   if(!paused || mode!=="TOURIST" || answerChoices.length===0) return;
+ hazardCooldown = Math.max(0, hazardCooldown - dt);
+
   answerIndex = (answerIndex + dir + answerChoices.length) % answerChoices.length;
   const firstLine = bubble.textContent.split("\n\n")[0];
   showBubble(firstLine + "\n\n" + renderChoices() + "\n\nUse LEFT/RIGHT to choose • ACTION confirms • JUMP closes");
