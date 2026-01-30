@@ -18,10 +18,7 @@
     background:#071021;
     font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   }
-  #wrap{
-    width:100vw; height:100vh;
-    display:flex; align-items:center; justify-content:center;
-  }
+  #wrap{ width:100vw; height:100vh; display:flex; align-items:center; justify-content:center; }
   canvas{
     width:100vw; max-width:520px;
     height:100vh; max-height:960px;
@@ -119,7 +116,6 @@
 </head>
 
 <body>
-
 <div id="hud">
   <div class="row">
     <span>🍺 <b id="hudBeer">6</b></span>
@@ -170,9 +166,9 @@
 
 <script>
 /* =========================================================
-   CLEAN REBUILD — HALF 1/2
+   FIXED CAMERA BUILD — HALF 1/2
+   Camera is applied EXACTLY ONCE via screenX = worldX - camX.
 ========================================================= */
-
 document.addEventListener("contextmenu", e=>e.preventDefault());
 document.addEventListener("selectstart", e=>e.preventDefault());
 
@@ -188,10 +184,7 @@ const bubble = document.getElementById("bubble");
 function showBubble(text){ bubble.style.display="block"; bubble.textContent=text; }
 function hideBubble(){ bubble.style.display="none"; bubble.textContent=""; }
 
-let running=false;
-let paused=false;
-let won=false;
-
+let running=false, paused=false, won=false;
 function setPaused(v){ paused=v; }
 
 /* ---------- Audio ---------- */
@@ -202,7 +195,6 @@ const melody=[
   294,330,370,440,494,440,370,330,
   262,294,330,392,440,523,494,392
 ];
-
 function ensureAudio(){
   if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
   if(audioCtx.state==="suspended") audioCtx.resume();
@@ -225,8 +217,8 @@ function startMusic(){
   }, tempoMs);
 }
 function setTempo(ms){
-  ms = Math.max(110, Math.min(220, ms|0));
-  if(ms===tempoMs) return; // critical: don't restart constantly
+  ms=Math.max(110, Math.min(220, ms|0));
+  if(ms===tempoMs) return;
   tempoMs=ms;
   if(musicTimer){ clearInterval(musicTimer); musicTimer=null; }
   startMusic();
@@ -237,8 +229,6 @@ function unlockAudio(){
   ensureAudio();
   startMusic();
 }
-
-/* SFX */
 function sfxJump(){ playTone(740,0.07,0.06,"square"); }
 function sfxStomp(){ playTone(220,0.08,0.07,"square"); }
 function sfxHit(){ playTone(160,0.10,0.07,"sawtooth"); }
@@ -246,8 +236,7 @@ function sfxCoin(){ playTone(880,0.06,0.05,"square"); playTone(1174,0.06,0.04,"s
 function sfxThrow(){ playTone(330,0.06,0.06,"square"); }
 
 /* ---------- Input ---------- */
-const input={ left:false, right:false, jump:false, action:false };
-
+const input={ left:false,right:false,jump:false,action:false };
 function bindHold(el,key){
   el.addEventListener("pointerdown",(e)=>{e.preventDefault(); input[key]=true; unlockAudio();},{passive:false});
   el.addEventListener("pointerup",(e)=>{e.preventDefault(); input[key]=false;},{passive:false});
@@ -267,7 +256,7 @@ window.addEventListener("keydown",(e)=>{
   if(k==="ArrowRight"||k==="d") input.right=true;
   if(k==="ArrowUp"||k==="w") input.jump=true;
   if(k===" "||k==="Enter") input.action=true;
-  if(k==="Escape") { if(paused) closeInteraction(); }
+  if(k==="Escape"){ if(paused) closeInteraction(); }
 });
 window.addEventListener("keyup",(e)=>{
   const k=e.key;
@@ -277,20 +266,17 @@ window.addEventListener("keyup",(e)=>{
   if(k===" "||k==="Enter") input.action=false;
 });
 
-/* ---------- UI wiring (reliable) ---------- */
+/* ---------- UI wiring ---------- */
 window.addEventListener("DOMContentLoaded", ()=>{
   document.getElementById("btnReset").addEventListener("click", ()=>location.reload());
-
   document.getElementById("startBtn").addEventListener("click", ()=>{
     document.getElementById("startOverlay").style.display="none";
     running=true;
     unlockAudio();
   });
-
   document.getElementById("howBtn").addEventListener("click", ()=>{
     document.getElementById("howOverlay").style.display="flex";
   });
-
   document.getElementById("backBtn").addEventListener("click", ()=>{
     document.getElementById("howOverlay").style.display="none";
   });
@@ -308,23 +294,18 @@ function shuffle(arr){
   }
   return arr;
 }
+function sx(worldX){ return worldX - camX; } // ✅ single camera application
 
-/* ---------- World constants/state ---------- */
-const W = canvas.width;
-const H = canvas.height;
-let WORLD_W = 2600;            // computed from stores below (fixes camera/Tom mismatch)
-const GROUND_Y = 560;
-const GRAVITY = 2200;
-const BUILD_Y = GROUND_Y - 210;
-const BUILD_H = 190;
+/* ---------- World/state ---------- */
+const W=canvas.width, H=canvas.height;
+let WORLD_W=2600;
+const GROUND_Y=560, GRAVITY=2200;
+const BUILD_Y=GROUND_Y-210, BUILD_H=190;
 
-let timeLeft=160;
-let cash=0;
-let camX=0;
-let inBossArena=false;
+let timeLeft=160, cash=0, camX=0, inBossArena=false;
 
-/* ---------- Stores (door-only) ---------- */
-const stores = [
+/* ---------- Stores ---------- */
+const stores=[
   { key:"76",     name:"Evergreen 76",   x:  40, w: 220, color:"#9b1c1c", door:{dx: 95,  w: 34} },
   { key:"SHELL",  name:"Shell",          x: 330, w: 220, color:"#d4a300", door:{dx: 92,  w: 34} },
   { key:"CHINOOK",name:"Chinook Rx",     x: 610, w: 240, color:"#0f766e", door:{dx: 104, w: 34} },
@@ -334,88 +315,34 @@ const stores = [
   { key:"SASQ",   name:"Sasquatch Shop", x: 1730,w: 240, color:"#6d4c41", door:{dx: 104, w: 34} },
   { key:"THRIFT", name:"Thriftway",      x: 2020,w: 360, color:"#b50000", door:{dx: 160, w: 48} },
 ];
-
-// ✅ FIX: compute world width from the actual farthest building edge + padding
-WORLD_W = stores.reduce((m,s)=>Math.max(m, s.x + s.w), 0) + 260;
+WORLD_W = stores.reduce((m,s)=>Math.max(m, s.x+s.w), 0) + 260;
 
 function doorRect(s){ return rect(s.x + s.door.dx, GROUND_Y-84, s.door.w, 84); }
 
 /* ---------- Player ---------- */
-const tom = {
-  x: 90, y: GROUND_Y-96,
-  w: 44, h: 96,
-  vx:0, vy:0,
-  onGround:false,
-  big:true,
-  beer:6,
-  facing:1,
-  carry:null,
-  hurt:0
-};
+const tom={ x:90,y:GROUND_Y-96,w:44,h:96,vx:0,vy:0,onGround:false,big:true,beer:6,facing:1,carry:null,hurt:0 };
 
-/* ---------- NPCs / Enemies ---------- */
+/* ---------- NPC / enemies ---------- */
 function makeTourist(x){
-  return {
-    x, y:GROUND_Y-82,
-    w:38, h:82,
-    vx:(Math.random()<0.5?-40:40),
-    alive:true,
-    known:false,
-    annoying:null,
-    smart:false,
-    throwable:false,
-    sliding:false,
-    slideV:0
-  };
+  return { x, y:GROUND_Y-82, w:38,h:82, vx:(Math.random()<0.5?-40:40), alive:true,
+           known:false, annoying:null, smart:false, throwable:false, sliding:false, slideV:0 };
 }
-let tourists=[
-  makeTourist(420),
-  makeTourist(680),
-  makeTourist(980),
-  makeTourist(1320),
-  makeTourist(1600),
-];
+let tourists=[ makeTourist(420), makeTourist(680), makeTourist(980), makeTourist(1320), makeTourist(1600) ];
 
 function makeEnemy(type,x){
-  return {
-    type,
-    x, y:GROUND_Y-76,
-    w:42, h:76,
-    vx:(type==="werewolf"?95:75),
-    vy:0,
-    winged:(type==="vampire"),
-    alive:true
-  };
+  return { type, x, y:GROUND_Y-76, w:42,h:76, vx:(type==="werewolf"?95:75), vy:0, winged:(type==="vampire"), alive:true };
 }
-let enemies=[
-  makeEnemy("vampire", 760),
-  makeEnemy("werewolf", 1050),
-  makeEnemy("vampire", 1380),
-  makeEnemy("werewolf", 1620),
-];
+let enemies=[ makeEnemy("vampire",760), makeEnemy("werewolf",1050), makeEnemy("vampire",1380), makeEnemy("werewolf",1620) ];
 
 const elk={ active:false, x:0, y:GROUND_Y-54, w:90, h:48, vx:-560 };
+const sassy={ active:false, started:false, hp:6, x:2140, y:GROUND_Y-140, w:110, h:140, vx:0, vy:0, onGround:false, jumpT:0.8 };
 
-const sassy={
-  active:false, started:false, hp:6,
-  x:2140, y:GROUND_Y-140, w:110, h:140,
-  vx:0, vy:0, onGround:false, jumpT:0.8
-};
-
-const hazards=[
-  { x: 520,  w: 52, type:"pothole" },
-  { x: 1120, w: 70, type:"puddle" },
-  { x: 1460, w: 60, type:"cart"   },
-];
+const hazards=[ {x:520,w:52,type:"pothole"}, {x:1120,w:70,type:"puddle"}, {x:1460,w:60,type:"cart"} ];
 let hazardCooldown=0;
 
 /* ---------- Dialog state ---------- */
-let mode="RUN"; // RUN | TOURIST | STORE | WIN
-let activeTourist=null;
-let activeStore=null;
-let answerChoices=[];
-let answerIndex=0;
-let correctIndex=0;
+let mode="RUN", activeTourist=null, activeStore=null;
+let answerChoices=[], answerIndex=0, correctIndex=0;
 
 const dumbQs=[
   "“When do the deer turn into elk?”",
@@ -426,34 +353,20 @@ const dumbQs=[
   "“Is Jacob available for birthday parties?”",
   "“Where is the vampire sparkle viewing area?”"
 ];
-
 const directionQs=[
   { q:"“How do we get to Thriftway?”",
     correct:"Go down Forks Ave until the big red sign.",
-    wrong:[
-      "Follow the whales through Peugeot Sound.",
-      "Ask a vampire for Yelp directions.",
-      "Wait for Edward to appear and lead you."
-    ]
+    wrong:[ "Follow the whales through Peugeot Sound.", "Ask a vampire for Yelp directions.", "Wait for Edward to appear and lead you." ]
   },
   { q:"“Where’s Chinook Pharmacy?”",
     correct:"Stay on the main strip—keep walking.",
-    wrong:[
-      "Turn where the deer become elk.",
-      "Cross into La Push and howl twice.",
-      "It’s behind the sparkle treaty line."
-    ]
+    wrong:[ "Turn where the deer become elk.", "Cross into La Push and howl twice.", "It’s behind the sparkle treaty line." ]
   },
   { q:"“Where’s the Transit Center?”",
     correct:"Keep to Forks Ave—watch for the bus stop.",
-    wrong:[
-      "Summon a werewolf rideshare.",
-      "Ask Sassy. He runs dispatch.",
-      "Go back to the 76 and request a teleport."
-    ]
+    wrong:[ "Summon a werewolf rideshare.", "Ask Sassy. He runs dispatch.", "Go back to the 76 and request a teleport." ]
   }
 ];
-
 function renderChoices(){
   let out="";
   for(let i=0;i<answerChoices.length;i++){
@@ -462,29 +375,28 @@ function renderChoices(){
   return out.trimEnd();
 }
 
-/* ---------- Draw functions (recognizable sprites) ---------- */
+/* ---------- Draw (NO ctx.translate, NO double camera) ---------- */
 function drawStores(){
-  ctx.save();
-  ctx.translate(-camX,0);
   for(const s of stores){
-    px(s.x, BUILD_Y, s.w, BUILD_H, s.color);
-    px(s.x, BUILD_Y, s.w, 10, "rgba(0,0,0,.25)");
+    const x = sx(s.x);
+    px(x, BUILD_Y, s.w, BUILD_H, s.color);
+    px(x, BUILD_Y, s.w, 10, "rgba(0,0,0,.25)");
     ctx.fillStyle="rgba(255,255,255,.92)";
     ctx.font="bold 14px system-ui";
     ctx.textAlign="center";
-    ctx.fillText(s.name, s.x + s.w/2, BUILD_Y + 26);
+    ctx.fillText(s.name, x + s.w/2, BUILD_Y + 26);
+
     for(let i=0;i<Math.floor(s.w/70);i++){
-      px(s.x+16+i*70, BUILD_Y+54, 42, 22, "rgba(255,255,255,.18)");
+      px(x+16+i*70, BUILD_Y+54, 42, 22, "rgba(255,255,255,.18)");
     }
-    const d=doorRect(s);
-    px(d.x, d.y, d.w, d.h, "#111827");
-    px(d.x+4, d.y+14, d.w-8, 18, "rgba(255,255,255,.25)");
+    const d = doorRect(s);
+    px(sx(d.x), d.y, d.w, d.h, "#111827");
+    px(sx(d.x)+4, d.y+14, d.w-8, 18, "rgba(255,255,255,.25)");
   }
-  ctx.restore();
 }
 
 function drawTom(){
-  const x=tom.x-camX, y=tom.y;
+  const x=sx(tom.x), y=tom.y;
   if(tom.hurt>0 && (Math.floor(tom.hurt*10)%2===0)) return;
   px(x+8, y+92, 28, 6, "rgba(0,0,0,.25)");
   px(x+8, y+6, 28, 10, "#ffcc00");
@@ -511,7 +423,7 @@ function drawTom(){
 }
 
 function drawTourist(t){
-  const x=t.x-camX, y=t.y;
+  const x=sx(t.x), y=t.y;
   px(x+8,y+10,26,8, t.annoying ? "#ff7a18" : "#16a34a");
   px(x+12,y+18,18,16,"#f2c9a0");
   px(x+16,y+24,3,3,"#111827");
@@ -526,7 +438,7 @@ function drawTourist(t){
 }
 
 function drawWerewolf(e){
-  const x=e.x-camX, y=e.y;
+  const x=sx(e.x), y=e.y;
   px(x+6,y+14,32,38,"#6b4a2e");
   px(x+10,y+22,24,18,"#4b2f1a");
   px(x+26,y+28,12,8,"#2b1a0f");
@@ -539,7 +451,7 @@ function drawWerewolf(e){
 }
 
 function drawVampire(e){
-  const x=e.x-camX, y=e.y;
+  const x=sx(e.x), y=e.y;
   if(e.winged){
     px(x-8,y+18,10,18,"rgba(0,0,0,.35)");
     px(x+40,y+18,10,18,"rgba(0,0,0,.35)");
@@ -557,7 +469,7 @@ function drawVampire(e){
 
 function drawElk(){
   if(!elk.active) return;
-  const x=elk.x-camX, y=elk.y;
+  const x=sx(elk.x), y=elk.y;
   px(x, y, elk.w, elk.h, "#c68642");
   px(x+14, y+14, 20, 6, "rgba(0,0,0,.22)");
   px(x+60, y+6, 10, 10, "#8b5a2b");
@@ -565,7 +477,7 @@ function drawElk(){
 
 function drawSassy(){
   if(!sassy.active) return;
-  const x=sassy.x-camX, y=sassy.y;
+  const x=sx(sassy.x), y=sassy.y;
   px(x+8,y+10,94,120,"#3b2f2f");
   px(x+24,y+30,60,38,"#2b1f1f");
   px(x+38,y+42,8,8,"#111827");
@@ -583,11 +495,11 @@ function drawSassy(){
 </script>
 <script>
 /* =========================================================
-   CLEAN REBUILD — HALF 2/2
+   FIXED CAMERA BUILD — HALF 2/2
 ========================================================= */
 
-/* ---------- Remaining helpers ---------- */
 function hazardRect(hz){ return rect(hz.x, GROUND_Y-18, hz.w, 18); }
+
 function storeAtDoor(){
   const tr = rect(tom.x,tom.y,tom.w,tom.h);
   for(const s of stores){
@@ -599,7 +511,6 @@ function stompOn(targetY){
   return tom.vy > 90 && (tom.y + tom.h - targetY) < 44;
 }
 
-/* ---------- Close interaction (used by Esc, jump close, etc.) ---------- */
 function closeInteraction(){
   mode="RUN";
   activeTourist=null;
@@ -627,7 +538,6 @@ function openStore(s){
     else text += (sassy.active ? "Door locked until Sassy is defeated.\n" : "Door unlocked.\n");
   }
   if(s.key==="76") text += "The crew bus already left. Typical.\n";
-
   text += "\nACTION buys option 1 • JUMP closes";
   showBubble(text);
 }
@@ -675,7 +585,7 @@ function openTourist(t){
   if(t.annoying===null){
     t.annoying = Math.random() < 0.55;
     t.smart = !t.annoying;
-    t.throwable = t.annoying; // ONLY annoying tourists can be thrown
+    t.throwable = t.annoying;
   }
 
   if(t.annoying){
@@ -700,7 +610,7 @@ function answerNav(dir){
   renderChoiceBubble(q);
 }
 
-/* ---------- Throwing (straight line slide) ---------- */
+/* ---------- Throwing ---------- */
 function throwTourist(t){
   t.sliding=true;
   t.slideV=720*tom.facing;
@@ -727,10 +637,10 @@ function resetTo76(){
   sassy.hp=6;
 
   enemies=[
-    makeEnemy("vampire", 760),
-    makeEnemy("werewolf", 1050),
-    makeEnemy("vampire", 1380),
-    makeEnemy("werewolf", 1620),
+    makeEnemy("vampire",760),
+    makeEnemy("werewolf",1050),
+    makeEnemy("vampire",1380),
+    makeEnemy("werewolf",1620),
   ];
   tourists=[
     makeTourist(420),
@@ -748,7 +658,6 @@ function hitTom(knockDir=0){
   if(tom.hurt>0) return;
   tom.hurt=0.85;
   sfxHit();
-
   if(tom.big){
     tom.big=false;
     tom.vy=-520;
@@ -779,7 +688,6 @@ function updateTom(dt){
     tom.onGround = false;
   }
 
-  // hard world clamp (fixed with computed WORLD_W)
   tom.x = clamp(tom.x, 0, WORLD_W - tom.w);
 }
 
@@ -965,25 +873,23 @@ function updateBoss(dt){
   }
 }
 
-/* ---------- Drawing hazards + world ---------- */
+/* ---------- Draw hazards / world ---------- */
 function drawHazards(){
-  ctx.save();
-  ctx.translate(-camX,0);
   for(const hz of hazards){
+    const x = sx(hz.x);
     if(hz.type==="pothole"){
-      px(hz.x, GROUND_Y-16, hz.w, 16, "#1f2937");
-      px(hz.x+6, GROUND_Y-12, hz.w-12, 8, "rgba(255,255,255,.10)");
+      px(x, GROUND_Y-16, hz.w, 16, "#1f2937");
+      px(x+6, GROUND_Y-12, hz.w-12, 8, "rgba(255,255,255,.10)");
     }else if(hz.type==="puddle"){
-      px(hz.x, GROUND_Y-10, hz.w, 10, "#1d4ed8");
-      px(hz.x+6, GROUND_Y-8, hz.w-12, 5, "rgba(255,255,255,.20)");
+      px(x, GROUND_Y-10, hz.w, 10, "#1d4ed8");
+      px(x+6, GROUND_Y-8, hz.w-12, 5, "rgba(255,255,255,.20)");
     }else{
-      px(hz.x, GROUND_Y-24, hz.w, 8, "#9ca3af");
-      px(hz.x+8, GROUND_Y-38, hz.w-16, 14, "#6b7280");
-      px(hz.x+10, GROUND_Y-14, 10, 10, "#111827");
-      px(hz.x+hz.w-20, GROUND_Y-14, 10, 10, "#111827");
+      px(x, GROUND_Y-24, hz.w, 8, "#9ca3af");
+      px(x+8, GROUND_Y-38, hz.w-16, 14, "#6b7280");
+      px(x+10, GROUND_Y-14, 10, 10, "#111827");
+      px(x+hz.w-20, GROUND_Y-14, 10, 10, "#111827");
     }
   }
-  ctx.restore();
 }
 
 function drawWorld(){
@@ -995,9 +901,6 @@ function drawWorld(){
 
   drawStores();
   drawHazards();
-
-  ctx.save();
-  ctx.translate(-camX,0);
 
   if(!inBossArena){
     for(const e of enemies){
@@ -1011,12 +914,11 @@ function drawWorld(){
     drawElk();
   }else{
     ctx.fillStyle="rgba(0,0,0,.08)";
-    ctx.fillRect(camX,0,W,H);
+    ctx.fillRect(0,0,W,H);
     drawSassy();
   }
 
   drawTom();
-  ctx.restore();
 }
 
 /* ---------- Win ---------- */
@@ -1065,7 +967,7 @@ function doAction(){
   }
 }
 
-/* ---------- Main loop (edge-taps) ---------- */
+/* ---------- Main loop ---------- */
 let last=performance.now();
 let prevJump=false, prevAction=false, prevLeft=false, prevRight=false;
 
@@ -1093,15 +995,17 @@ function loop(now){
       else setTempo(165);
 
       if(jumpTap && tom.onGround){
-        tom.vy = -900;
+        tom.vy=-900;
         tom.onGround=false;
         sfxJump();
       }
 
       updateTom(dt);
 
-      // ✅ clamp camera to computed WORLD_W
-      camX = clamp(tom.x - 170, 0, Math.max(0, WORLD_W - W));
+      // ✅ camera clamp; computed WORLD_W; and NEVER lets camX move if Tom is clamped
+      const desired = tom.x - 170;
+      const maxCam = Math.max(0, WORLD_W - W);
+      camX = clamp(desired, 0, maxCam);
 
       if(!inBossArena){
         updateEnemies(dt);
@@ -1132,9 +1036,7 @@ function loop(now){
 
     const thrift = stores.find(s=>s.key==="THRIFT");
     if(thrift && inBossArena && !sassy.active){
-      if(aabb(rect(tom.x,tom.y,tom.w,tom.h), doorRect(thrift))){
-        win();
-      }
+      if(aabb(rect(tom.x,tom.y,tom.w,tom.h), doorRect(thrift))) win();
     }
   }
 
