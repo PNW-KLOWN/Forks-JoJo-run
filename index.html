@@ -211,6 +211,28 @@
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+// ---- ON-SCREEN ERROR REPORTER (filtered) ----
+window.onerror = function(message, source, lineno, colno, error){
+  const msg = String(message || "");
+
+  // Ignore common injected wallet/provider errors (not our game)
+  if (msg.toLowerCase().includes("ethereum")) {
+    return true; // swallow it so it doesn't break gameplay
+  }
+
+  try{
+    const text =
+      "JS ERROR:\n" +
+      msg + "\n" +
+      "Line: " + lineno + " Col: " + colno;
+
+    showBubble(text, "Fix the error above, then refresh.");
+    setPaused(true);
+    // don't assume 'mode' exists yet; only set if defined
+    if (typeof mode !== "undefined") mode = "STORE";
+  }catch(e){}
+  return false;
+};
 
 const hudBeer = document.getElementById("hudBeer");
 const hudCash = document.getElementById("hudCash");
