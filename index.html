@@ -1,135 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>Forks Ave — JoJos Run</title>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
 <style>
-  *{
-    -webkit-touch-callout:none;
-    -webkit-user-select:none;
-    user-select:none;
-    -webkit-tap-highlight-color:transparent;
-  }
-  html,body{
-    margin:0; padding:0; width:100%; height:100%;
-    overflow:hidden;
-    background:#071021;
-    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  }
-  #wrap{
-    width:100vw; height:100vh;
-    display:flex; align-items:center; justify-content:center;
-  }
-  canvas{
-    width:100vw; max-width:520px;
-    height:100vh; max-height:960px;
-    background:#8fd3ff;
-    border-radius:14px;
-    image-rendering:pixelated;
-    touch-action:none;
-  }
+*{
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+  -webkit-tap-highlight-color:transparent;
+}
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  background:#071021;
+  overflow:hidden;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+#wrap{
+  width:100vw;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+canvas{
+  width:100vw;
+  max-width:520px;
+  height:100vh;
+  max-height:960px;
+  background:#8fd3ff;
+  image-rendering:pixelated;
+  border-radius:14px;
+  touch-action:none;
+}
+#hud{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  padding:8px 10px;
+  background:rgba(0,0,0,.75);
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  z-index:10;
+  font-size:14px;
+}
+#controls{
+  position:fixed;
+  bottom:10px;
+  left:0;
+  right:0;
+  display:flex;
+  gap:8px;
+  padding:0 10px;
+  z-index:10;
+}
+.ctrl{
+  flex:1;
+  padding:14px 10px;
+  font-size:16px;
+  font-weight:800;
+  border:none;
+  border-radius:16px;
+  background:#111827;
+  color:white;
+}
+.ctrl.jump{ background:#16a34a; }
+.ctrl.action{ background:#2563eb; }
 
-  #hud{
-    position:fixed; top:0; left:0; right:0;
-    padding:8px 10px;
-    background:rgba(0,0,0,.76);
-    color:#fff;
-    display:flex; justify-content:space-between; align-items:center;
-    z-index:20;
-    font-size:14px;
-    box-sizing:border-box;
-  }
-  #hud .row{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-  #hud button{
-    border:none; border-radius:12px;
-    padding:8px 10px;
-    background:#1f2937; color:#fff;
-    font-weight:800;
-  }
-
-  #controls{
-    position:fixed; left:0; right:0; bottom:10px;
-    display:flex; gap:8px;
-    padding:0 10px;
-    z-index:20;
-    box-sizing:border-box;
-  }
-  .ctrl{
-    flex:1;
-    border:none; border-radius:16px;
-    padding:14px 10px;
-    font-size:16px; font-weight:900;
-    color:#fff;
-    background:#111827;
-    touch-action:none;
-  }
-  .ctrl.jump{ background:#16a34a; }
-  .ctrl.action{ background:#2563eb; }
-
-  .overlay{
-    position:fixed; inset:0;
-    background:rgba(0,0,0,.85);
-    display:flex; align-items:center; justify-content:center;
-    z-index:30;
-  }
-  .panel{
-    width:92%; max-width:560px;
-    background:#0f1e35; color:#fff;
-    border-radius:18px;
-    padding:18px;
-    box-sizing:border-box;
-  }
-  .panel h1{ margin:0 0 10px; font-size:26px; }
-  .panel p{ margin:8px 0; line-height:1.35; }
-  .panel .btn{
-    width:100%;
-    margin-top:12px;
-    border:none; border-radius:16px;
-    padding:14px;
-    font-size:18px; font-weight:900;
-    background:#2563eb; color:#fff;
-  }
-  .panel .btn.secondary{ background:#1f2937; font-weight:850; }
-
-  /* Quote bubble (tourist/store dialog) */
-  #bubble{
-    position:fixed;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:118px;
-    width:min(520px, 92vw);
-    background:#ffffff;
-    color:#0b1220;
-    border-radius:16px;
-    padding:12px 12px;
-    box-shadow:0 8px 24px rgba(0,0,0,.35);
-    z-index:40;
-    display:none;
-    white-space:pre-line;
-    box-sizing:border-box;
-  }
-  #bubble .hint{
-    margin-top:8px;
-    font-size:12px;
-    opacity:.75;
-  }
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:20;
+}
+.panel{
+  width:92%;
+  max-width:520px;
+  background:#0f1e35;
+  color:white;
+  padding:18px;
+  border-radius:18px;
+}
+.panel h1{ margin:0 0 10px; }
+.panel p{ line-height:1.35; }
+.panel button{
+  width:100%;
+  margin-top:10px;
+  padding:14px;
+  font-size:18px;
+  font-weight:900;
+  border:none;
+  border-radius:16px;
+  background:#2563eb;
+  color:white;
+}
+.panel button.secondary{
+  background:#1f2937;
+}
+#bubble{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:120px;
+  width:min(520px,92vw);
+  background:#fff;
+  color:#0b1220;
+  border-radius:16px;
+  padding:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+  z-index:30;
+  display:none;
+  white-space:pre-line;
+}
 </style>
 </head>
 
 <body>
 
 <div id="hud">
-  <div class="row">
-    <span>🍺 <b id="hudBeer">6</b></span>
-    <span>💵 $<b id="hudCash">0</b></span>
-    <span>⏱ <b id="hudTime">160</b>s</span>
-    <span>📍 <b id="hudZone">FORKS AVE</b></span>
-  </div>
-  <div class="row">
-    <button id="btnReset">Reset</button>
-  </div>
+  <div>🍺 <span id="hudBeer">6</span> | 💵 $<span id="hudCash">0</span> | ⏱ <span id="hudTime">160</span></div>
+  <button onclick="location.reload()">Reset</button>
 </div>
 
 <div id="wrap">
@@ -143,39 +143,35 @@
   <button class="ctrl action" id="btnAction">ACTION</button>
 </div>
 
-<div id="bubble"></div>
-
-<div class="overlay" id="startOverlay">
+<div class="overlay" id="startScreen">
   <div class="panel">
     <h1>Forks Ave — JoJos Run</h1>
-    <p><b>Story:</b> The crew bus just dropped Tom off at the 76. He’s a logger on a mission: reach Thriftway’s hot case for chicken strips and JoJos before the tourists buy them all up.</p>
-    <p><b>Tourists:</b> Talk first. Some ask directions and tip if you answer right. Some ask painfully stupid questions… and those are the ones you can throw.</p>
-    <p><b>Enemies:</b> Vampires and werewolves like classic platformers. Jump on them to smash them.</p>
-    <p><b>Beer:</b> If Tom is big and gets hit → he becomes small. If Tom is small and gets hit → back to the 76.</p>
-    <button class="btn" id="btnStart">START</button>
-    <button class="btn secondary" id="btnHow">Controls / Goal</button>
+    <p>The crew bus just dropped Tom off at the 76.</p>
+    <p>Get to Thriftway before the tourists clear out the hot case.</p>
+    <p>Talk first. Some tourists tip. Some can be thrown.</p>
+    <button id="startBtn">START</button>
+    <button class="secondary" id="howBtn">CONTROLS / GOAL</button>
   </div>
 </div>
 
-<div class="overlay" id="howOverlay" style="display:none;">
+<div class="overlay" id="howScreen" style="display:none;">
   <div class="panel">
-    <h1>Controls / Goal</h1>
-    <p><b>Mobile:</b> Use on-screen buttons.</p>
-    <p><b>Keyboard:</b> A/D or ←/→ move, W/↑ jump, Space/Enter = Action. Esc closes dialogs.</p>
-    <p><b>Action button:</b> Talk • Grab • Throw • Drink beer • Use store door.</p>
-    <p><b>Goal:</b> Reach Thriftway, defeat Sassy the Sasquatch in the parking lot, then enter the door to win.</p>
-    <button class="btn" id="btnBack">Back</button>
+    <h1>How to Play</h1>
+    <p><b>Mobile:</b> On-screen buttons</p>
+    <p><b>Keyboard:</b> A/D or ← → move, W/↑ jump, Space/Enter = action</p>
+    <p><b>Action:</b> Talk • Grab • Throw • Drink beer</p>
+    <p><b>Goal:</b> Defeat Sasquatch, enter Thriftway</p>
+    <button id="backBtn">BACK</button>
   </div>
 </div>
+
+<div id="bubble"></div>
 
 <script>
-/* =========================================================
-   FORKS AVE — JOJOS RUN (HALF 1/2)
-   - Mobile-first platformer
-   - No Frogger
-   - Dialog pauses game (safe)
-   - Audio unlock on gesture
-========================================================= */
+/* ======================================================
+   HALF 1 OF 2 — CORE STATE + AUDIO + INPUT
+   (NO GAME LOOP YET — THIS IS CORRECT)
+====================================================== */
 
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -183,138 +179,124 @@ const ctx = canvas.getContext("2d");
 const hudBeer = document.getElementById("hudBeer");
 const hudCash = document.getElementById("hudCash");
 const hudTime = document.getElementById("hudTime");
-const hudZone = document.getElementById("hudZone");
 
 const bubble = document.getElementById("bubble");
-function showBubble(text){ bubble.style.display="block"; bubble.textContent = text; }
+function showBubble(t){ bubble.style.display="block"; bubble.textContent=t; }
 function hideBubble(){ bubble.style.display="none"; bubble.textContent=""; }
 
-/* Prevent mobile text selection/callout */
-document.addEventListener("contextmenu", e=>e.preventDefault());
-document.addEventListener("selectstart", e=>e.preventDefault());
+let running = false;
+let paused = false;
 
-/* ---------- Audio: music + SFX (mobile-safe) ---------- */
-let audioCtx = null;
-let musicTimer = null;
-let tempoMs = 165;
-let mIdx = 0;
+/* ---------- AUDIO (fixed, persistent) ---------- */
+let audioCtx=null, musicTimer=null, tempoMs=165, noteIdx=0, audioUnlocked=false;
+const melody=[262,294,330,392,440,392,330,294,262,330,392,523,587,523,392,330];
 
-// richer “NES elevator” vibe loop
-const melody = [
-  262,294,330,392,440,392,330,294,
-  262,330,392,523,587,523,392,330,
-  294,330,370,440,494,440,370,330,
-  262,294,330,392,440,523,494,392
-];
-
-function ensureAudio(){
-  if(!audioCtx){
-    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-  }
-  if(audioCtx.state === "suspended") audioCtx.resume();
+function unlockAudio(){
+  if(audioUnlocked) return;
+  audioUnlocked=true;
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  startMusic();
 }
-
-function playTone(freq, dur=0.08, vol=0.06, type="square"){
+function playTone(f,d=0.12,v=0.04){
   if(!audioCtx) return;
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
-  o.type = type;
-  o.frequency.value = freq;
-  g.gain.value = vol;
+  const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+  o.type="square"; o.frequency.value=f; g.gain.value=v;
   o.connect(g); g.connect(audioCtx.destination);
-  o.start();
-  o.stop(audioCtx.currentTime + dur);
+  o.start(); o.stop(audioCtx.currentTime+d);
 }
-
-function sfxJump(){ playTone(740,0.07,0.06,"square"); }
-function sfxStomp(){ playTone(220,0.08,0.07,"square"); }
-function sfxHit(){ playTone(160,0.10,0.07,"sawtooth"); }
-function sfxCoin(){ playTone(880,0.06,0.05,"square"); playTone(1174,0.06,0.04,"square"); }
-function sfxThrow(){ playTone(330,0.06,0.06,"square"); }
-
 function startMusic(){
-  ensureAudio();
   if(musicTimer) return;
-  musicTimer = setInterval(()=>{
-    ensureAudio();
-    playTone(melody[mIdx++ % melody.length], 0.12, 0.035, "square");
-  }, tempoMs);
+  musicTimer=setInterval(()=>playTone(melody[noteIdx++%melody.length]),tempoMs);
 }
 function setTempo(ms){
-  ms = Math.max(90, Math.min(260, ms|0));
-  if(ms === tempoMs) return;          // <-- critical: don't restart constantly
-  tempoMs = ms;
-
-  if(musicTimer){
-    clearInterval(musicTimer);
-    musicTimer = null;
-  }
-  // only restart music if audio is already unlocked
+  if(ms===tempoMs) return;
+  tempoMs=ms;
+  if(musicTimer){ clearInterval(musicTimer); musicTimer=null; }
   if(audioUnlocked) startMusic();
 }
 
+/* ---------- INPUT ---------- */
+const input={left:false,right:false,jump:false,action:false};
 
-let audioUnlocked=false;
-function unlockAudioOnce(){
-  if(audioUnlocked) return;
-  audioUnlocked=true;
-  ensureAudio();
-  startMusic();
+function bind(id,key){
+  const el=document.getElementById(id);
+  el.addEventListener("pointerdown",e=>{e.preventDefault();input[key]=true;unlockAudio();},{passive:false});
+  el.addEventListener("pointerup",e=>{e.preventDefault();input[key]=false;},{passive:false});
+  el.addEventListener("pointerleave",()=>input[key]=false);
 }
+bind("btnLeft","left");
+bind("btnRight","right");
+bind("btnJump","jump");
+bind("btnAction","action");
 
-/* ---------- Input: touch + keyboard ---------- */
-const input = { left:false, right:false, jumpTap:false, actionTap:false };
-
-function holdButton(el, prop){
-  el.addEventListener("pointerdown", e=>{ e.preventDefault(); input[prop]=true; unlockAudioOnce(); }, {passive:false});
-  el.addEventListener("pointerup", e=>{ e.preventDefault(); input[prop]=false; }, {passive:false});
-  el.addEventListener("pointercancel", e=>{ e.preventDefault(); input[prop]=false; }, {passive:false});
-  el.addEventListener("pointerleave", e=>{ input[prop]=false; });
-}
-
-holdButton(document.getElementById("btnLeft"), "left");
-holdButton(document.getElementById("btnRight"), "right");
-
-document.getElementById("btnJump").addEventListener("pointerdown", e=>{ e.preventDefault(); input.jumpTap=true; unlockAudioOnce(); }, {passive:false});
-document.getElementById("btnAction").addEventListener("pointerdown", e=>{ e.preventDefault(); input.actionTap=true; unlockAudioOnce(); }, {passive:false});
-
-window.addEventListener("keydown",(e)=>{
-  if(e.repeat) return;
-  unlockAudioOnce();
-  const k=e.key;
-  if(k==="ArrowLeft"||k==="a") input.left=true;
-  if(k==="ArrowRight"||k==="d") input.right=true;
-  if(k==="ArrowUp"||k==="w") input.jumpTap=true;
-  if(k===" "||k==="Enter") input.actionTap=true;
-  if(k==="Escape"){ if(paused) closeInteraction(); }
+window.addEventListener("keydown",e=>{
+  unlockAudio();
+  if(e.key==="ArrowLeft"||e.key==="a") input.left=true;
+  if(e.key==="ArrowRight"||e.key==="d") input.right=true;
+  if(e.key==="ArrowUp"||e.key==="w") input.jump=true;
+  if(e.key===" "||e.key==="Enter") input.action=true;
 });
-window.addEventListener("keyup",(e)=>{
-  const k=e.key;
-  if(k==="ArrowLeft"||k==="a") input.left=false;
-  if(k==="ArrowRight"||k==="d") input.right=false;
+window.addEventListener("keyup",e=>{
+  if(e.key==="ArrowLeft"||e.key==="a") input.left=false;
+  if(e.key==="ArrowRight"||e.key==="d") input.right=false;
+  if(e.key==="ArrowUp"||e.key==="w") input.jump=false;
+  if(e.key===" "||e.key==="Enter") input.action=false;
 });
 
 /* ---------- UI ---------- */
-document.getElementById("btnReset").onclick = ()=>location.reload();
-document.getElementById("btnStart").onclick = ()=>{
-  document.getElementById("startOverlay").style.display="none";
-  running = true;
-  unlockAudioOnce();
+document.getElementById("startBtn").onclick=()=>{
+  document.getElementById("startScreen").style.display="none";
+  running=true;
+  unlockAudio();
 };
-document.getElementById("btnHow").onclick = ()=>{ document.getElementById("howOverlay").style.display="flex"; };
-document.getElementById("btnBack").onclick = ()=>{ document.getElementById("howOverlay").style.display="none"; };
+document.getElementById("howBtn").onclick=()=>{
+  document.getElementById("howScreen").style.display="flex";
+};
+document.getElementById("backBtn").onclick=()=>{
+  document.getElementById("howScreen").style.display="none";
+};
+<script>
+/* ======================================================
+   HALF 2 OF 2 — GAMEPLAY + LOOP
+   Fixes included:
+   - Big hit no longer instantly resets (i-frames via tom.hurt)
+   - Hazards no longer wipe time (cooldown)
+   - Music doesn't cut out (setTempo is no-op unless changed, in HALF 1)
+   - Dialog pauses game (safe)
+   - No Frogger
+====================================================== */
 
-/* ---------- Game constants ---------- */
+/* ---------- SFX wrappers ---------- */
+function sfxJump(){ playTone(740,0.07,0.06); }
+function sfxStomp(){ playTone(220,0.08,0.07); }
+function sfxHit(){ playTone(160,0.10,0.07); }
+function sfxCoin(){ playTone(880,0.06,0.05); playTone(1174,0.06,0.04); }
+function sfxThrow(){ playTone(330,0.06,0.06); }
+
+/* ---------- Helpers ---------- */
+function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+function rect(x,y,w,h){ return {x,y,w,h}; }
+function aabb(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
+function px(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(x,y,w,h); }
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=(Math.random()*(i+1))|0;
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+/* ---------- World constants ---------- */
 const W = canvas.width;
 const H = canvas.height;
 const WORLD_W = 2600;
 const GROUND_Y = 560;
 const GRAVITY = 2200;
 
-/* ---------- World + stores ---------- */
 const BUILD_Y = GROUND_Y - 210;
 const BUILD_H = 190;
 
+/* ---------- Stores (door-only) ---------- */
 const stores = [
   { key:"76",     name:"Evergreen 76",   x:  40, w: 220, color:"#9b1c1c", door:{dx: 95,  w: 34} },
   { key:"SHELL",  name:"Shell",          x: 330, w: 220, color:"#d4a300", door:{dx: 92,  w: 34} },
@@ -326,28 +308,24 @@ const stores = [
   { key:"THRIFT", name:"Thriftway",      x: 2020,w: 360, color:"#b50000", door:{dx: 160, w: 48} },
 ];
 
-function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
-function rect(x,y,w,h){ return {x,y,w,h}; }
-function aabb(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
 function doorRect(s){ return rect(s.x + s.door.dx, GROUND_Y-84, s.door.w, 84); }
-
 function storeAtDoor(){
-  const tr = rect(tom.x,tom.y,tom.w,tom.h);
+  const tr=rect(tom.x,tom.y,tom.w,tom.h);
   for(const s of stores){
     if(aabb(tr, doorRect(s))) return s;
   }
   return null;
 }
 
-/* ---------- Entities ---------- */
-let running = false;
-let paused = false;
-let won = false;
+/* ---------- Game state ---------- */
+let won=false;
+let timeLeft=160;
+let cash=0;
+let camX=0;
 
-let timeLeft = 160;
-let cash = 0;
-let camX = 0;
+function setPaused(v){ paused=v; }
 
+/* ---------- Player ---------- */
 const tom = {
   x: 90, y: GROUND_Y-96,
   w: 44, h: 96,
@@ -356,16 +334,16 @@ const tom = {
   big:true,
   beer:6,
   facing:1,
-  carry:null
- hurt:0
+  carry:null,
+  hurt:0 // i-frames timer
 };
 
-/* Tourists */
+/* ---------- Tourists ---------- */
 function makeTourist(x){
   return {
     x, y:GROUND_Y-82,
     w:38, h:82,
-    vx: (Math.random()<0.5 ? -40 : 40),
+    vx:(Math.random()<0.5?-40:40),
     alive:true,
     known:false,
     annoying:null,
@@ -383,15 +361,15 @@ let tourists = [
   makeTourist(1600),
 ];
 
-/* Enemies */
+/* ---------- Enemies ---------- */
 function makeEnemy(type,x){
   return {
     type,
     x, y:GROUND_Y-76,
     w:42, h:76,
-    vx: (type==="werewolf" ? 95 : 75),
+    vx:(type==="werewolf"?95:75),
     vy:0,
-    winged: (type==="vampire"),
+    winged:(type==="vampire"),
     alive:true
   };
 }
@@ -402,26 +380,35 @@ let enemies = [
   makeEnemy("werewolf", 1620),
 ];
 
-/* Elk hazard */
+/* ---------- Elk hazard ---------- */
 const elk = { active:false, x:0, y:GROUND_Y-54, w:90, h:48, vx:-560 };
 
-/* Boss arena */
-let inBossArena = false;
+/* ---------- Boss arena ---------- */
+let inBossArena=false;
 const sassy = {
-  active:false, started:false, hp:5,
+  active:false, started:false, hp:6,
   x:2140, y:GROUND_Y-140, w:110, h:140,
-  vx:0, vy:0, onGround:false, jumpT:0.9
+  vx:0, vy:0, onGround:false, jumpT:0.8
 };
 
-/* ---------- Dialog / interaction state ---------- */
-let mode = "RUN"; // RUN | TOURIST | STORE | WIN
-let activeTourist = null;
-let activeStore = null;
-let answerChoices = [];
-let answerIndex = 0;
-let correctIndex = 0;
+/* ---------- Obstacles (no Frogger) ---------- */
+const hazards = [
+  { x: 520,  w: 52, type:"pothole" },
+  { x: 1120, w: 70, type:"puddle" },
+  { x: 1460, w: 60, type:"cart"   },
+];
+let hazardCooldown = 0;
 
-/* Tourist question banks */
+function hazardRect(hz){ return rect(hz.x, GROUND_Y-18, hz.w, 18); }
+
+/* ---------- Dialog state ---------- */
+let mode="RUN"; // RUN | TOURIST | STORE | WIN
+let activeTourist=null;
+let activeStore=null;
+let answerChoices=[];
+let answerIndex=0;
+let correctIndex=0;
+
 const dumbQs = [
   "“When do the deer turn into elk?”",
   "“Where can we find Edward?”",
@@ -459,9 +446,354 @@ const directionQs = [
   }
 ];
 
-/* ---------- Drawing helpers + sprites (recognizable pixel art) ---------- */
-function px(x,y,w,h,c){ ctx.fillStyle=c; ctx.fillRect(x,y,w,h); }
+function renderChoices(){
+  let out="";
+  for(let i=0;i<answerChoices.length;i++){
+    out += (i===answerIndex ? "▶ " : "  ") + answerChoices[i] + "\n";
+  }
+  return out.trimEnd();
+}
 
+function closeInteraction(){
+  mode="RUN";
+  activeTourist=null;
+  activeStore=null;
+  answerChoices=[];
+  hideBubble();
+  setPaused(false);
+}
+
+/* ---------- Stores ---------- */
+function openStore(s){
+  mode="STORE";
+  setPaused(true);
+  activeStore=s;
+
+  let text=`🏪 ${s.name}\n`;
+  if(s.key==="SHELL")   text += "1) Buy beer case (+6) — $10\n";
+  if(s.key==="CHINOOK") text += "1) Blister cream — $8\n";
+  if(s.key==="TRUE")    text += "1) Ammo (+3) — $9\n";
+  if(s.key==="SASQ")    text += "1) Earrings (wife) — $12 (+15s)\n";
+  if(s.key==="CARWASH") text += "1) Wash car +$5 (free)\n";
+  if(s.key==="TRANSIT") text += "1) Bus closer to Thriftway — $20\n";
+  if(s.key==="THRIFT"){
+    if(!inBossArena) text += "Parking lot ahead…\n";
+    else text += (sassy.active ? "Door locked until Sassy is defeated.\n" : "Door unlocked.\n");
+  }
+  text += "\nACTION buys option 1 • JUMP closes";
+  showBubble(text);
+}
+
+function buyStore(){
+  const s=activeStore;
+  if(!s) return;
+
+  if(s.key==="SHELL" && cash>=10){ cash-=10; tom.beer+=6; sfxCoin(); }
+  else if(s.key==="CHINOOK" && cash>=8){ cash-=8; sfxCoin(); }
+  else if(s.key==="TRUE" && cash>=9){ cash-=9; sfxCoin(); }
+  else if(s.key==="SASQ" && cash>=12){ cash-=12; timeLeft+=15; sfxCoin(); }
+  else if(s.key==="CARWASH"){ cash+=5; sfxCoin(); }
+  else if(s.key==="TRANSIT" && cash>=20 && !inBossArena){
+    cash-=20;
+    tom.x=1880; tom.y=GROUND_Y-tom.h;
+    tom.vx=0; tom.vy=0;
+    sfxCoin();
+  }
+}
+
+/* ---------- Tourists ---------- */
+function openTourist(t){
+  mode="TOURIST";
+  setPaused(true);
+  activeTourist=t;
+  t.known=true;
+
+  if(t.annoying===null){
+    t.annoying = Math.random() < 0.55;
+    t.smart = !t.annoying;
+    t.throwable = t.annoying; // ONLY annoying tourists throwable
+  }
+
+  if(t.annoying){
+    const q=dumbQs[(Math.random()*dumbQs.length)|0];
+    showBubble(q + "\n\nACTION closes");
+    return;
+  }
+
+  const dq=directionQs[(Math.random()*directionQs.length)|0];
+  const choices=shuffle([dq.correct, ...dq.wrong]);
+  answerChoices=choices;
+  answerIndex=0;
+  correctIndex=choices.indexOf(dq.correct);
+
+  showBubble(dq.q + "\n\n" + renderChoices() +
+    "\n\nLEFT/RIGHT choose • ACTION confirm • JUMP closes");
+}
+
+function throwTourist(t){
+  t.sliding=true;
+  t.slideV = 720 * tom.facing;
+  tom.carry=null;
+  sfxThrow();
+}
+
+/* ---------- Combat / damage ---------- */
+function stompOn(targetY){
+  // big stomp window
+  return tom.vy > 90 && (tom.y + tom.h - targetY) < 44;
+}
+
+function hitTom(knockDir=0){
+  if(tom.hurt>0) return;      // i-frames
+  tom.hurt = 0.85;
+  sfxHit();
+
+  if(tom.big){
+    tom.big=false;            // big -> small only
+    tom.vy=-520;
+    tom.vx=520*(knockDir||-tom.facing);
+  }else{
+    resetTo76();
+  }
+}
+
+function resetTo76(){
+  tom.x=90; tom.y=GROUND_Y-tom.h;
+  tom.vx=0; tom.vy=0;
+  tom.onGround=false;
+  tom.big=true;
+  tom.beer=6;
+  tom.hurt=0;
+
+  cash=0;
+  timeLeft=160;
+
+  inBossArena=false;
+  sassy.active=false;
+  sassy.started=false;
+
+  enemies=[
+    makeEnemy("vampire", 760),
+    makeEnemy("werewolf", 1050),
+    makeEnemy("vampire", 1380),
+    makeEnemy("werewolf", 1620),
+  ];
+  tourists=[
+    makeTourist(420),
+    makeTourist(680),
+    makeTourist(980),
+    makeTourist(1320),
+    makeTourist(1600),
+  ];
+}
+
+/* ---------- Update functions ---------- */
+function updateTom(dt){
+  tom.hurt = Math.max(0, tom.hurt - dt);
+
+  const speed=250;
+  tom.vx=0;
+  if(input.left){ tom.vx=-speed; tom.facing=-1; }
+  if(input.right){ tom.vx= speed; tom.facing= 1; }
+
+  tom.vy += GRAVITY*dt;
+  tom.x += tom.vx*dt;
+  tom.y += tom.vy*dt;
+
+  if(tom.y >= GROUND_Y - tom.h){
+    tom.y = GROUND_Y - tom.h;
+    tom.vy = 0;
+    tom.onGround=true;
+  }else{
+    tom.onGround=false;
+  }
+
+  tom.x = clamp(tom.x, 0, WORLD_W - tom.w);
+}
+
+function updateEnemies(dt){
+  for(const e of enemies){
+    if(!e.alive) continue;
+
+    if(e.type==="vampire" && e.winged && Math.random()<0.012){
+      e.vy=-740;
+    }
+
+    e.vy += GRAVITY*dt;
+    e.x  += e.vx*dt;
+    e.y  += e.vy*dt;
+
+    if(e.x < 640)  e.vx = Math.abs(e.vx);
+    if(e.x > 1720) e.vx = -Math.abs(e.vx);
+
+    if(e.y >= GROUND_Y - e.h){
+      e.y = GROUND_Y - e.h;
+      e.vy = 0;
+    }
+
+    if(tom.hurt>0) continue;
+
+    const tr=rect(tom.x,tom.y,tom.w,tom.h);
+    const er=rect(e.x,e.y,e.w,e.h);
+    if(aabb(tr,er)){
+      const stomp = stompOn(e.y);
+      if(stomp){
+        if(e.type==="vampire" && e.winged){
+          e.winged=false;
+        }else{
+          e.alive=false;
+        }
+        tom.vy=-680;
+        sfxStomp();
+      }else{
+        hitTom(Math.sign(tom.x - e.x) || 1);
+      }
+    }
+  }
+}
+
+function updateTourists(dt){
+  for(const t of tourists){
+    if(!t.alive) continue;
+
+    if(tom.carry===t){
+      t.x = tom.x + (tom.facing>0 ? 20 : -20);
+      t.y = tom.y + 12;
+      continue;
+    }
+
+    if(t.sliding){
+      t.x += t.slideV*dt;
+      t.y = GROUND_Y - t.h;
+
+      const tr=rect(t.x,t.y,t.w,t.h);
+      for(const e of enemies){
+        if(!e.alive) continue;
+        if(aabb(tr, rect(e.x,e.y,e.w,e.h))){
+          e.alive=false;
+          t.alive=false;
+          sfxStomp();
+          break;
+        }
+      }
+      if(Math.abs(t.x - tom.x) > 900) t.alive=false;
+      continue;
+    }
+
+    t.x += t.vx*dt;
+    if(Math.random()<0.01) t.vx *= -1;
+    t.x = clamp(t.x, 220, 1850);
+  }
+}
+
+function updateHazards(dt){
+  hazardCooldown = Math.max(0, hazardCooldown - dt);
+  if(hazardCooldown>0) return;
+
+  const tr=rect(tom.x,tom.y,tom.w,tom.h);
+  for(const hz of hazards){
+    const hr=hazardRect(hz);
+    if(aabb(tr,hr) && tom.onGround){
+      hazardCooldown = 0.95; // prevents time wipe
+      timeLeft = Math.max(0, timeLeft - 4);
+      if(hz.type==="cart" && tom.hurt===0) hitTom(tom.facing);
+      return;
+    }
+  }
+}
+
+function maybeSpawnElk(){
+  if(inBossArena || elk.active) return;
+  if(tom.x > 1150 && Math.random()<0.012){
+    elk.active=true;
+    elk.x = tom.x + 520;
+  }
+}
+function updateElk(dt){
+  if(!elk.active) return;
+  elk.x += elk.vx*dt;
+  if(elk.x < tom.x - 900) elk.active=false;
+
+  if(tom.hurt>0) return;
+
+  const tr=rect(tom.x,tom.y,tom.w,tom.h);
+  const er=rect(elk.x,elk.y,elk.w,elk.h);
+  if(aabb(tr,er)){
+    const stomp=stompOn(elk.y);
+    if(stomp){
+      elk.active=false;
+      tom.vy=-700;
+      sfxStomp();
+    }else{
+      hitTom(Math.sign(tom.x - elk.x) || 1);
+      elk.active=false;
+    }
+  }
+}
+
+/* ---------- Boss ---------- */
+function checkBossArenaEntry(){
+  if(inBossArena) return;
+  if(tom.x > 1950){
+    inBossArena=true;
+    enemies.forEach(e=>e.alive=false);
+    tourists.forEach(t=>t.alive=false);
+  }
+}
+function startBoss(){
+  sassy.active=true;
+  sassy.started=true;
+  sassy.hp=6;
+  sassy.x=2140;
+  sassy.y=GROUND_Y-sassy.h;
+  sassy.vx=-240;
+  sassy.vy=0;
+  sassy.onGround=true;
+  sassy.jumpT=0.8;
+}
+function updateBoss(dt){
+  if(!sassy.active) return;
+
+  const dir = Math.sign(tom.x - sassy.x) || 1;
+  sassy.vx = dir * 320;
+
+  sassy.jumpT -= dt;
+  if(sassy.jumpT<=0 && sassy.onGround){
+    sassy.vy=-1020;
+    sassy.onGround=false;
+    sassy.jumpT = 0.55 + Math.random()*0.55;
+  }
+
+  sassy.vy += GRAVITY*dt;
+  sassy.x  += sassy.vx*dt;
+  sassy.y  += sassy.vy*dt;
+
+  sassy.x = clamp(sassy.x, 1960, 2360);
+
+  if(sassy.y >= GROUND_Y - sassy.h){
+    sassy.y = GROUND_Y - sassy.h;
+    sassy.vy = 0;
+    sassy.onGround=true;
+  }
+
+  if(tom.hurt>0) return;
+
+  const tr=rect(tom.x,tom.y,tom.w,tom.h);
+  const br=rect(sassy.x,sassy.y,sassy.w,sassy.h);
+  if(aabb(tr,br)){
+    const stomp=stompOn(sassy.y);
+    if(stomp){
+      sassy.hp -= 1;
+      tom.vy=-760;
+      sfxStomp();
+      if(sassy.hp<=0) sassy.active=false;
+    }else{
+      hitTom(dir);
+    }
+  }
+}
+
+/* ---------- Rendering ---------- */
 function drawStores(){
   ctx.save();
   ctx.translate(-camX,0);
@@ -472,20 +804,43 @@ function drawStores(){
     ctx.font="bold 14px system-ui";
     ctx.textAlign="center";
     ctx.fillText(s.name, s.x + s.w/2, BUILD_Y + 26);
+
     for(let i=0;i<Math.floor(s.w/70);i++){
       px(s.x+16+i*70, BUILD_Y+54, 42, 22, "rgba(255,255,255,.18)");
     }
-    const d = doorRect(s);
+
+    const d=doorRect(s);
     px(d.x, d.y, d.w, d.h, "#111827");
     px(d.x+4, d.y+14, d.w-8, 18, "rgba(255,255,255,.25)");
   }
   ctx.restore();
 }
 
-function drawTom(x,y){
- if(tom.hurt > 0 && Math.floor(tom.hurt*10)%2===0) return;
+function drawHazards(){
+  ctx.save();
+  ctx.translate(-camX,0);
+  for(const hz of hazards){
+    if(hz.type==="pothole"){
+      px(hz.x, GROUND_Y-16, hz.w, 16, "#1f2937");
+      px(hz.x+6, GROUND_Y-12, hz.w-12, 8, "rgba(255,255,255,.10)");
+    }else if(hz.type==="puddle"){
+      px(hz.x, GROUND_Y-10, hz.w, 10, "#1d4ed8");
+      px(hz.x+6, GROUND_Y-8, hz.w-12, 5, "rgba(255,255,255,.20)");
+    }else{
+      px(hz.x, GROUND_Y-24, hz.w, 8, "#9ca3af");
+      px(hz.x+8, GROUND_Y-38, hz.w-16, 14, "#6b7280");
+      px(hz.x+10, GROUND_Y-14, 10, 10, "#111827");
+      px(hz.x+hz.w-20, GROUND_Y-14, 10, 10, "#111827");
+    }
+  }
+  ctx.restore();
+}
 
-  // logger: hardhat, beard, flannel, caulks
+function drawTom(){
+  const x=tom.x-camX, y=tom.y;
+  // blink when invincible
+  if(tom.hurt>0 && ((tom.hurt*10)|0)%2===0) return;
+
   px(x+8, y+92, 28, 6, "rgba(0,0,0,.25)");
   px(x+8, y+6, 28, 10, "#ffcc00");
   px(x+6, y+14, 32, 6, "#eab308");
@@ -510,24 +865,26 @@ function drawTom(x,y){
   if(!tom.big) px(x+4, y+6, 36, 90, "rgba(255,255,255,.12)");
 }
 
-function drawTourist(t,x,y){
+function drawTourist(t){
+  const x=t.x-camX, y=t.y;
   px(x+8,y+10,26,8, t.annoying ? "#ff7a18" : "#16a34a");
   px(x+12,y+18,18,16,"#f2c9a0");
   px(x+16,y+24,3,3,"#111827");
   px(x+23,y+24,3,3,"#111827");
-  px(x+10,y+34,22,24,"#64748b");     // hoodie
-  px(x+14,y+40,14,8,"#111827");      // camera
-  px(x+4,y+40,8,12,"#94a3b8");       // map
+  px(x+10,y+34,22,24,"#64748b");
+  px(x+14,y+40,14,8,"#111827");
+  px(x+4,y+40,8,12,"#94a3b8");
   px(x+12,y+58,9,18,"#0f172a");
   px(x+21,y+58,9,18,"#0f172a");
   px(x+12,y+76,9,6,"#111827");
   px(x+21,y+76,9,6,"#111827");
 }
 
-function drawWerewolf(x,y){
+function drawWerewolf(e){
+  const x=e.x-camX, y=e.y;
   px(x+6,y+14,32,38,"#6b4a2e");
   px(x+10,y+22,24,18,"#4b2f1a");
-  px(x+26,y+28,12,8,"#2b1a0f");     // snout
+  px(x+26,y+28,12,8,"#2b1a0f");
   px(x+14,y+28,3,3,"#111827");
   px(x+20,y+28,3,3,"#111827");
   px(x+10,y+52,12,18,"#111827");
@@ -536,16 +893,17 @@ function drawWerewolf(x,y){
   px(x+22,y+70,14,6,"#111827");
 }
 
-function drawVampire(e,x,y){
+function drawVampire(e){
+  const x=e.x-camX, y=e.y;
   if(e.winged){
     px(x-8,y+18,10,18,"rgba(0,0,0,.35)");
     px(x+40,y+18,10,18,"rgba(0,0,0,.35)");
   }
-  px(x+8,y+14,28,40,"#3b1d5c");     // cloak
-  px(x+14,y+20,16,14,"#f3e8ff");     // face
+  px(x+8,y+14,28,40,"#3b1d5c");
+  px(x+14,y+20,16,14,"#f3e8ff");
   px(x+17,y+24,3,3,"#111827");
   px(x+24,y+24,3,3,"#111827");
-  px(x+20,y+32,4,3,"#7c2d12");       // mouth
+  px(x+20,y+32,4,3,"#7c2d12");
   px(x+12,y+54,10,16,"#111827");
   px(x+22,y+54,10,16,"#111827");
   px(x+10,y+70,12,6,"#111827");
@@ -554,15 +912,15 @@ function drawVampire(e,x,y){
 
 function drawElk(){
   if(!elk.active) return;
-  const x = elk.x - camX;
-  px(x, elk.y, elk.w, elk.h, "#c68642");
-  px(x+14, elk.y+14, 20, 6, "rgba(0,0,0,.22)");
-  px(x+60, elk.y+6, 10, 10, "#8b5a2b");
+  const x=elk.x-camX, y=elk.y;
+  px(x, y, elk.w, elk.h, "#c68642");
+  px(x+14, y+14, 20, 6, "rgba(0,0,0,.22)");
+  px(x+60, y+6, 10, 10, "#8b5a2b");
 }
 
 function drawSassy(){
-  const x = sassy.x - camX;
-  const y = sassy.y;
+  if(!sassy.active) return;
+  const x=sassy.x-camX, y=sassy.y;
   px(x+8,y+10,94,120,"#3b2f2f");
   px(x+24,y+30,60,38,"#2b1f1f");
   px(x+38,y+42,8,8,"#111827");
@@ -573,560 +931,10 @@ function drawSassy(){
   ctx.fillStyle="rgba(255,255,255,.92)";
   ctx.font="bold 14px system-ui";
   ctx.textAlign="left";
-  ctx.fillText("SASSY HP: " + sassy.hp, x, y-8);
+  ctx.fillText("SASSY HP: "+sassy.hp, x, y-8);
 }
 
-/* ---------- END HALF 1/2 ---------- */
-</script>
-<script>
-/* =========================================================
-   FORKS AVE — JOJOS RUN (HALF 2/2)
-   Gameplay + loop + collisions + dialogs + boss
-========================================================= */
-
-function setPaused(v){ paused = v; }
-
-/* ---------- Interaction helpers ---------- */
-function closeInteraction(){
-  mode = "RUN";
-  activeTourist = null;
-  activeStore = null;
-  answerChoices = [];
-  hideBubble();
-  setPaused(false);
-}
-
-function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){
-    const j = (Math.random()*(i+1))|0;
-    [arr[i],arr[j]]=[arr[j],arr[i]];
-  }
-  return arr;
-}
-
-function renderChoices(){
-  let out = "";
-  for(let i=0;i<answerChoices.length;i++){
-    out += (i===answerIndex ? "▶ " : "  ") + answerChoices[i] + "\n";
-  }
-  return out.trimEnd();
-}
-
-/* ---------- Tourist dialog ---------- */
-function openTourist(t){
-  mode = "TOURIST";
-  setPaused(true);
-  activeTourist = t;
-  t.known = true;
-
-  // Determine once: annoying (throwable) OR smart (tips)
-  if(t.annoying === null){
-    t.annoying = Math.random() < 0.55;
-    t.smart = !t.annoying;
-    t.throwable = t.annoying;  // ONLY annoying tourists can be thrown
-  }
-
-  if(t.annoying){
-    const q = dumbQs[(Math.random()*dumbQs.length)|0];
-    showBubble(q + "\n\n(ACTION to close)");
-    return;
-  }
-
-  const dq = directionQs[(Math.random()*directionQs.length)|0];
-  const choices = shuffle([dq.correct, ...dq.wrong]);
-
-  answerChoices = choices;
-  answerIndex = 0;
-  correctIndex = choices.indexOf(dq.correct);
-
-  showBubble(
-    dq.q + "\n\n" +
-    renderChoices() +
-    "\n\nUse LEFT/RIGHT to choose • ACTION confirms • JUMP closes"
-  );
-}
-
-/* ---------- Stores (door-only) ---------- */
-function openStore(s){
-  mode = "STORE";
-  setPaused(true);
-  activeStore = s;
-
-  let text = `🏪 ${s.name}\n`;
-
-  if(s.key==="SHELL")   text += "1) Buy beer case (+6) — $10\n";
-  if(s.key==="CHINOOK") text += "1) Blister cream — $8\n";
-  if(s.key==="TRUE")    text += "1) Ammo (+3) — $9\n";
-  if(s.key==="SASQ")    text += "1) Earrings for Tom's wife — $12 (+15s)\n";
-  if(s.key==="CARWASH") text += "1) Wash a car — Earn $5 (free)\n";
-  if(s.key==="TRANSIT") text += "1) Bus closer to Thriftway — $20\n";
-
-  if(s.key==="THRIFT"){
-    if(!inBossArena){
-      text += "Parking lot ahead…\n";
-    }else{
-      text += (sassy.active ? "Door locked until Sassy is defeated.\n" : "Door unlocked.\n");
-    }
-  }
-
-  if(s.key==="76") text += "No shopping. Just fumes and regret.\n";
-
-  text += "\nACTION buys option 1 • JUMP closes";
-  showBubble(text);
-}
-
-function buyStore(){
-  const s = activeStore;
-  if(!s) return;
-
-  if(s.key==="SHELL"){
-    if(cash >= 10){
-      cash -= 10;
-      tom.beer += 6;
-      sfxCoin();
-    }
-  }else if(s.key==="CHINOOK"){
-    if(cash >= 8){ cash -= 8; sfxCoin(); }
-  }else if(s.key==="TRUE"){
-    if(cash >= 9){ cash -= 9; sfxCoin(); }
-  }else if(s.key==="SASQ"){
-    if(cash >= 12){ cash -= 12; timeLeft += 15; sfxCoin(); }
-  }else if(s.key==="CARWASH"){
-    cash += 5;
-    sfxCoin();
-  }else if(s.key==="TRANSIT"){
-    if(cash >= 20 && !inBossArena){
-      cash -= 20;
-      tom.x = 1880;
-      tom.y = GROUND_Y - tom.h;
-      tom.vx = 0; tom.vy = 0;
-      sfxCoin();
-    }
-  }
-}
-
-/* ---------- Throwing (straight line slide) ---------- */
-function throwTourist(t){
-  t.sliding = true;
-  t.slideV = 720 * tom.facing;
-  tom.carry = null;
-  sfxThrow();
-}
-
-/* ---------- Core mechanics ---------- */
-function stompOn(targetY){
-  // Larger smash window like you asked
-  return tom.vy > 90 && (tom.y + tom.h - targetY) < 44;
-}
-
-function hitTom(knockDir=0){
- if(tom.hurt > 0) return;
-tom.hurt = 0.8; // ~0.8 seconds invincible
-
- sfxHit();
-  if(tom.big){
-    tom.big = false;           // big -> small (NO reset)
-    tom.vy = -520;
-    tom.vx = 520 * (knockDir||-tom.facing);
-  }else{
-    resetTo76();
-  }
-}
-
-function resetTo76(){
-  // Teleport back to start
-  tom.x = 90;
-  tom.y = GROUND_Y - tom.h;
-  tom.vx = 0; tom.vy = 0;
-  tom.onGround = false;
-  tom.big = true;
-  tom.beer = 6;
-  cash = 0;
-  timeLeft = 160;
-
-  inBossArena = false;
-  sassy.active = false;
-  sassy.started = false;
-
-  // respawn street actors
-  enemies = [
-    makeEnemy("vampire", 760),
-    makeEnemy("werewolf", 1050),
-    makeEnemy("vampire", 1380),
-    makeEnemy("werewolf", 1620),
-  ];
-  tourists = [
-    makeTourist(420),
-    makeTourist(680),
-    makeTourist(980),
-    makeTourist(1320),
-    makeTourist(1600),
-  ];
-}
-
-/* ---------- Obstacles (replace Frogger): potholes / puddles / cart ---------- */
-const hazards = [
- let hazardCooldown = 0;
-
-  { x: 520,  w: 52,  type:"pothole" },
-  { x: 1120, w: 70,  type:"puddle" },
-  { x: 1460, w: 60,  type:"cart"   },
-];
-
-function hazardRect(hz){
-  return rect(hz.x, GROUND_Y-18, hz.w, 18);
-}
-function drawHazards(){
-  ctx.save();
-  ctx.translate(-camX,0);
-  for(const hz of hazards){
-    if(hz.type==="pothole"){
-      px(hz.x, GROUND_Y-16, hz.w, 16, "#1f2937");
-      px(hz.x+6, GROUND_Y-12, hz.w-12, 8, "rgba(255,255,255,.10)");
-    }else if(hz.type==="puddle"){
-      px(hz.x, GROUND_Y-10, hz.w, 10, "#1d4ed8");
-      px(hz.x+6, GROUND_Y-8, hz.w-12, 5, "rgba(255,255,255,.20)");
-    }else{
-      // shopping cart
-      px(hz.x, GROUND_Y-24, hz.w, 8, "#9ca3af");
-      px(hz.x+8, GROUND_Y-38, hz.w-16, 14, "#6b7280");
-      px(hz.x+10, GROUND_Y-14, 10, 10, "#111827");
-      px(hz.x+hz.w-20, GROUND_Y-14, 10, 10, "#111827");
-    }
-  }
-  ctx.restore();
-}
-function updateHazards(){
-  if(hazardCooldown > 0) return;
-
-  const tr = rect(tom.x,tom.y,tom.w,tom.h);
-  for(const hz of hazards){
-    const hr = hazardRect(hz);
-    if(aabb(tr,hr) && tom.onGround){
-      hazardCooldown = 0.9; // can only trigger about once per second
-      timeLeft = Math.max(0, timeLeft - 4);
-      tom.vx *= 0.2;
-      if(hz.type==="cart") hitTom(tom.facing);
-      return;
-    }
-  }
-}
-
-
-/* ---------- Elk hazard ---------- */
-function maybeSpawnElk(){
-  if(inBossArena || elk.active) return;
-  if(tom.x > 1150 && Math.random() < 0.012){
-    elk.active = true;
-    elk.x = tom.x + 520;
-  }
-}
-function updateElk(dt){
-  if(!elk.active) return;
-  elk.x += elk.vx * dt;
-  if(elk.x < tom.x - 900) elk.active = false;
-
-  const tr = rect(tom.x,tom.y,tom.w,tom.h);
-  const er = rect(elk.x,elk.y,elk.w,elk.h);
-  if(aabb(tr,er)){
-    const stomp = stompOn(elk.y);
-    if(stomp){
-      elk.active = false;
-      tom.vy = -700;
-      sfxStomp();
-    }else{
-      hitTom(Math.sign(tom.x - elk.x) || 1);
-      elk.active = false;
-    }
-  }
-}
-
-/* ---------- Boss arena ---------- */
-function checkBossArenaEntry(){
-  if(inBossArena) return;
-  if(tom.x > 1950){
-    inBossArena = true;
-    hudZone.textContent = "THRIFTWAY LOT";
-    // remove all street actors in boss lot
-    enemies.forEach(e=>e.alive=false);
-    tourists.forEach(t=>t.alive=false);
-  }
-}
-
-function startBoss(){
-  sassy.active = true;
-  sassy.started = true;
-  sassy.hp = 6;
-  sassy.x = 2140;
-  sassy.y = GROUND_Y - sassy.h;
-  sassy.vx = -240;
-  sassy.vy = 0;
-  sassy.onGround = true;
-  sassy.jumpT = 0.8;
-}
-
-function updateBoss(dt){
-  if(!sassy.active) return;
-
-  const dir = Math.sign(tom.x - sassy.x) || 1;
-
-  // faster than other enemies
-  sassy.vx = dir * 320;
-
-  sassy.jumpT -= dt;
-  if(sassy.jumpT <= 0 && sassy.onGround){
-    sassy.vy = -1020;
-    sassy.onGround = false;
-    sassy.jumpT = 0.55 + Math.random()*0.55;
-  }
-
-  sassy.vy += GRAVITY * dt;
-  sassy.x += sassy.vx * dt;
-  sassy.y += sassy.vy * dt;
-
-  // boss arena bounds
-  sassy.x = clamp(sassy.x, 1960, 2360);
-
-  if(sassy.y >= GROUND_Y - sassy.h){
-    sassy.y = GROUND_Y - sassy.h;
-    sassy.vy = 0;
-    sassy.onGround = true;
-  }
-
-  const tr = rect(tom.x,tom.y,tom.w,tom.h);
-  const br = rect(sassy.x,sassy.y,sassy.w,sassy.h);
-
-  if(aabb(tr,br)){
-    const stomp = stompOn(sassy.y);
-    if(stomp){
-      sassy.hp -= 1;
-      tom.vy = -760;
-      sfxStomp();
-      if(sassy.hp <= 0){
-        sassy.active = false;
-      }
-    }else{
-      // grab/throw effect: hard knock + size penalty
-      hitTom(dir);
-      tom.x = clamp(tom.x - dir*60, 1960, 2360);
-    }
-  }
-}
-
-/* ---------- Movement / physics ---------- */
-function updateTom(dt){
-  const speed = 250;
-tom.hurt = Math.max(0, tom.hurt - dt);
-  // action tap is handled elsewhere; only movement here
-  tom.vx = 0;
-  if(input.left){ tom.vx = -speed; tom.facing = -1; }
-  if(input.right){ tom.vx = speed; tom.facing = 1; }
-
-  // Jump tap consumes
-  if(input.jumpTap){
-    input.jumpTap = false;
-    if(paused){ closeInteraction(); return; }
-    if(tom.onGround){
-      tom.vy = -900;
-      tom.onGround = false;
-      sfxJump();
-    }
-  }
-
-  tom.vy += GRAVITY * dt;
-
-  tom.x += tom.vx * dt;
-  tom.y += tom.vy * dt;
-
-  // ground
-  if(tom.y >= GROUND_Y - tom.h){
-    tom.y = GROUND_Y - tom.h;
-    tom.vy = 0;
-    tom.onGround = true;
-  }
-
-  tom.x = clamp(tom.x, 0, WORLD_W - tom.w);
-}
-
-/* ---------- Enemies update + collisions (fixed stomp behavior) ---------- */
-function updateEnemies(dt){
-  for(const e of enemies){
-    if(!e.alive) continue;
-
-    // winged vampire hops randomly
-    if(e.type==="vampire" && e.winged && Math.random() < 0.012){
-      e.vy = -740;
-    }
-
-    e.vy += GRAVITY * dt;
-    e.x += e.vx * dt;
-    e.y += e.vy * dt;
-
-    // patrol range on street
-    if(e.x < 640) e.vx = Math.abs(e.vx);
-    if(e.x > 1720) e.vx = -Math.abs(e.vx);
-
-    if(e.y >= GROUND_Y - e.h){
-      e.y = GROUND_Y - e.h;
-      e.vy = 0;
-    }
-
-    // collision with Tom
-    const tr = rect(tom.x,tom.y,tom.w,tom.h);
-    const er = rect(e.x,e.y,e.w,e.h);
-
-    if(aabb(tr,er)){
-      const stomp = stompOn(e.y);
-      if(stomp){
-        // Vampires: first stomp removes wings, second kills.
-        if(e.type==="vampire" && e.winged){
-          e.winged = false;
-        }else{
-          e.alive = false;
-        }
-        tom.vy = -680;
-        sfxStomp();
-      }else{
-        hitTom(Math.sign(tom.x - e.x) || 1);
-      }
-    }
-  }
-}
-
-/* ---------- Tourists update + thrown slide kills enemies ---------- */
-function updateTourists(dt){
-  for(const t of tourists){
-    if(!t.alive) continue;
-
-    if(tom.carry === t){
-      // carried position
-      t.x = tom.x + (tom.facing>0 ? 20 : -20);
-      t.y = tom.y + 12;
-      continue;
-    }
-
-    if(t.sliding){
-      t.x += t.slideV * dt;
-      t.y = GROUND_Y - t.h;
-
-      // kills any enemy it hits; then tourist vanishes too
-      const tr = rect(t.x,t.y,t.w,t.h);
-      for(const e of enemies){
-        if(!e.alive) continue;
-        if(aabb(tr, rect(e.x,e.y,e.w,e.h))){
-          e.alive = false;
-          t.alive = false;
-          sfxStomp();
-          break;
-        }
-      }
-      // vanish offscreen
-      if(Math.abs(t.x - tom.x) > 900) t.alive = false;
-      continue;
-    }
-
-    // normal tourist wandering
-    t.x += t.vx * dt;
-    if(Math.random() < 0.01) t.vx *= -1;
-    t.x = clamp(t.x, 220, 1850);
-  }
-}
-
-/* ---------- ACTION button (single button for everything) ---------- */
-function doAction(){
-  // If paused, we are in dialog/store
-  if(paused){
-    if(mode==="STORE"){
-      buyStore();
-      closeInteraction();
-      return;
-    }
-    if(mode==="TOURIST"){
-      // annoying: just close
-      if(activeTourist && activeTourist.annoying){
-        closeInteraction();
-        return;
-      }
-      // smart: check answer
-      if(answerChoices.length){
-        const correct = (answerIndex === correctIndex);
-        if(correct){
-          cash += 8 + ((Math.random()*6)|0);
-          sfxCoin();
-        }else{
-          timeLeft = Math.max(0, timeLeft - 3);
-          sfxHit();
-        }
-      }
-      closeInteraction();
-      return;
-    }
-  }
-
-  // If carrying an annoying tourist -> throw
-  if(tom.carry){
-    throwTourist(tom.carry);
-    return;
-  }
-
-  // If at a store door -> open store
-  const s = storeAtDoor();
-  if(s){
-    // Thriftway door is just a door, not whole building
-    openStore(s);
-    return;
-  }
-
-  // If overlapping a tourist -> talk first, then maybe grab if annoying
-  for(const t of tourists){
-    if(!t.alive) continue;
-    if(aabb(rect(tom.x,tom.y,tom.w,tom.h), rect(t.x,t.y,t.w,t.h))){
-      if(!t.known){
-        openTourist(t);
-        return;
-      }
-      if(t.throwable){
-        tom.carry = t;  // only annoying are throwable
-        return;
-      }
-      openTourist(t);
-      return;
-    }
-  }
-
-  // Beer anytime: if small and has beer, drink to become big
-  if(!tom.big && tom.beer > 0){
-    tom.beer -= 1;
-    tom.big = true;
-    sfxCoin();
-    return;
-  }
-}
-
-/* While paused in tourist question: LEFT/RIGHT selects */
-function answerNav(dir){
-  if(!paused || mode!=="TOURIST" || answerChoices.length===0) return;
- hazardCooldown = Math.max(0, hazardCooldown - dt);
-
-  answerIndex = (answerIndex + dir + answerChoices.length) % answerChoices.length;
-  const firstLine = bubble.textContent.split("\n\n")[0];
-  showBubble(firstLine + "\n\n" + renderChoices() + "\n\nUse LEFT/RIGHT to choose • ACTION confirms • JUMP closes");
-}
-
-/* ---------- Win ---------- */
-function win(){
-  if(won) return;
-  won = true;
-  mode = "WIN";
-  setPaused(true);
-  showBubble(
-    "HOT CASE SECURED.\n\nTom gets the chicken strips and JoJos.\nA tourist asks if elk are deer that got promoted.\n\nTap Reset to play again."
-  );
-}
-
-/* ---------- Draw world ---------- */
 function drawWorld(){
-  // sky + tree line + ground
   px(0,0,W,H,"#8fd3ff");
   px(0,120,W,70,"#1f7a3a");
   px(0,150,W,50,"#14532d");
@@ -1136,88 +944,157 @@ function drawWorld(){
   drawStores();
   drawHazards();
 
-  // actors
   ctx.save();
   ctx.translate(-camX,0);
 
   if(!inBossArena){
     for(const e of enemies){
       if(!e.alive) continue;
-      if(e.type==="werewolf") drawWerewolf(e.x,e.y);
-      else drawVampire(e,e.x,e.y);
+      if(e.type==="werewolf") drawWerewolf(e);
+      else drawVampire(e);
     }
     for(const t of tourists){
       if(!t.alive) continue;
-      drawTourist(t, t.x, t.y);
+      drawTourist(t);
     }
     drawElk();
   }else{
-    // boss lot mood
     ctx.fillStyle="rgba(0,0,0,.08)";
     ctx.fillRect(camX,0,W,H);
-    if(sassy.active) drawSassy();
+    drawSassy();
   }
 
-  drawTom(tom.x, tom.y);
+  drawTom();
   ctx.restore();
 }
 
-/* ---------- Main loop ---------- */
-let last = performance.now();
+/* ---------- Win ---------- */
+function win(){
+  if(won) return;
+  won=true;
+  mode="WIN";
+  setPaused(true);
+  showBubble("HOT CASE SECURED.\n\nTom gets the chicken strips and JoJos.\nA tourist asks if elk are deer that got promoted.\n\nHit Reset to play again.");
+}
+
+/* ---------- Action handler (unified button) ---------- */
+function doAction(){
+  if(paused){
+    if(mode==="STORE"){ buyStore(); closeInteraction(); return; }
+    if(mode==="TOURIST"){
+      if(activeTourist && activeTourist.annoying){ closeInteraction(); return; }
+      if(answerChoices.length){
+        const correct=(answerIndex===correctIndex);
+        if(correct){ cash += 8 + ((Math.random()*6)|0); sfxCoin(); }
+        else{ timeLeft = Math.max(0, timeLeft-3); sfxHit(); }
+      }
+      closeInteraction();
+      return;
+    }
+  }
+
+  if(tom.carry){ throwTourist(tom.carry); return; }
+
+  const s=storeAtDoor();
+  if(s){ openStore(s); return; }
+
+  for(const t of tourists){
+    if(!t.alive) continue;
+    if(aabb(rect(tom.x,tom.y,tom.w,tom.h), rect(t.x,t.y,t.w,t.h))){
+      if(!t.known){ openTourist(t); return; }
+      if(t.throwable){ tom.carry=t; return; }
+      openTourist(t);
+      return;
+    }
+  }
+
+  // drink beer anytime (meaningful when small)
+  if(!tom.big && tom.beer>0){
+    tom.beer -= 1;
+    tom.big = true;
+    sfxCoin();
+    return;
+  }
+}
+
+/* ---------- Answer nav using movement controls while paused ---------- */
+function answerNav(dir){
+  if(!paused || mode!=="TOURIST" || answerChoices.length===0) return;
+  answerIndex = (answerIndex + dir + answerChoices.length) % answerChoices.length;
+  const q = bubble.textContent.split("\n\n")[0];
+  showBubble(q + "\n\n" + renderChoices() + "\n\nLEFT/RIGHT choose • ACTION confirm • JUMP closes");
+}
+
+/* ---------- Main loop (edge-detect taps) ---------- */
+let last=performance.now();
+let prevJump=false, prevAction=false, prevLeft=false, prevRight=false;
 
 function loop(now){
-  const dt = clamp((now - last)/1000, 0, 1/20);
+  const dt = clamp((now-last)/1000, 0, 1/20);
   last = now;
+
+  // edges
+  const jumpTap = input.jump && !prevJump;
+  const actionTap = input.action && !prevAction;
+  const leftTap = input.left && !prevLeft;
+  const rightTap = input.right && !prevRight;
+
+  prevJump=input.jump;
+  prevAction=input.action;
+  prevLeft=input.left;
+  prevRight=input.right;
 
   if(running && !won){
     if(!paused){
       timeLeft = Math.max(0, timeLeft - dt);
 
-      updateTom(dt);
-
-      camX = clamp(tom.x - 170, 0, WORLD_W - W);
-
-      // tempo ramps near end
-      if(inBossArena) setTempo(125);
+      // tempo ramp
+      if(inBossArena) setTempo(130);
       else if(tom.x > 1800) setTempo(140);
       else if(tom.x > 1400) setTempo(150);
       else setTempo(165);
 
+      // jump tap
+      if(jumpTap && tom.onGround){
+        tom.vy = -900;
+        tom.onGround=false;
+        sfxJump();
+      }
+
+      updateTom(dt);
+      camX = clamp(tom.x - 170, 0, WORLD_W - W);
+
       if(!inBossArena){
         updateEnemies(dt);
         updateTourists(dt);
-        updateHazards();
+        updateHazards(dt);
         maybeSpawnElk();
         updateElk(dt);
       }else{
         if(!sassy.started) startBoss();
-        if(sassy.active) updateBoss(dt);
+        updateBoss(dt);
       }
 
       checkBossArenaEntry();
-      hudZone.textContent = inBossArena ? "THRIFTWAY LOT" : "FORKS AVE";
 
-      // bus narrative “feel”: subtle time pressure is already in timer
-      if(timeLeft <= 0){
+      // time up
+      if(timeLeft<=0){
         setPaused(true);
-        showBubble("Time’s up.\nThe hot case is gone.\n\nTap Reset to try again.");
+        showBubble("Time’s up.\nThe hot case is gone.\n\nHit Reset to try again.");
       }
+    }else{
+      // paused: use left/right to choose answers
+      if(mode==="TOURIST" && answerChoices.length){
+        if(leftTap) answerNav(-1);
+        if(rightTap) answerNav(+1);
+      }
+      // jump closes paused dialogs
+      if(jumpTap) closeInteraction();
     }
 
-    // ACTION tap consumed here
-    if(input.actionTap){
-      input.actionTap = false;
-      doAction();
-    }
+    if(actionTap) doAction();
 
-    // While paused in TOURIST Q: use left/right to choose
-    if(paused && mode==="TOURIST" && answerChoices.length){
-      if(input.left){ input.left=false; answerNav(-1); }
-      if(input.right){ input.right=false; answerNav(+1); }
-    }
-
-    // Tom can smash enemies easier: already widened stomp window.
-    // Thriftway win: boss defeated and Tom at door
+    // win condition: boss defeated and at thrift door
     const thrift = stores.find(s=>s.key==="THRIFT");
     if(thrift && inBossArena && !sassy.active){
       if(aabb(rect(tom.x,tom.y,tom.w,tom.h), doorRect(thrift))){
@@ -1234,7 +1111,6 @@ function loop(now){
   drawWorld();
   requestAnimationFrame(loop);
 }
-
 requestAnimationFrame(loop);
 </script>
 
